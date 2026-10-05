@@ -1,0 +1,8 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Crown, Shield, Star, Wallet } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AuthShell } from "@/components/soul/AuthShell";
+const stats=[["Wallet","ₕ5,000",Wallet],["Vault","ₕ0",Shield],["Level","1",Crown],["Rating","0",Star]] as const;
+export const Route=createFileRoute("/signup/welcome")({ssr:false,head:()=>({meta:[{title:"Welcome to Soul Life"},{name:"description",content:"Your Soul Life journey is ready to begin."},{property:"og:title",content:"Welcome to Soul Life"},{property:"og:description",content:"Your first ₕ5,000 is waiting."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),component:Welcome});
+function Welcome(){const navigate=useNavigate();const[seconds,setSeconds]=useState(6);useEffect(()=>{const id=setInterval(()=>setSeconds(s=>{if(s<=1){clearInterval(id);void navigate({to:"/dashboard",replace:true});return 0}return s-1}),1000);return()=>clearInterval(id)},[navigate]);return <AuthShell eyebrow="WELCOME, SOUL" title="Your story starts now." copy="You have everything you need to take your first step into Nigeria."><div className="grid grid-cols-2 gap-3">{stats.map(([l,v,I])=><div key={l} className="glass-pill p-4"><I className="text-primary"/><p className="mt-3 text-xs text-muted-foreground">{l}</p><p className="font-display text-xl font-bold">{v}</p></div>)}<Button className="glass-button col-span-2 mt-3 h-12" onClick={()=>navigate({to:"/dashboard",replace:true})}>Enter Soul Life · {seconds}s</Button></div></AuthShell>}
