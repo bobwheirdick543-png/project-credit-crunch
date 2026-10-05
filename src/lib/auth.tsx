@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { registerPwa } from "@/lib/register-pwa";
 
 export type SoulProfile = {
   id: string;
@@ -42,6 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    void registerPwa();
     let active = true;
     supabase.auth.getSession().then(async ({ data }) => {
       if (!active) return;

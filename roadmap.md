@@ -1,9 +1,9 @@
 # Delivery roadmap
 
-- [ ] Cinematic homepage backgrounds and image blending
-- [ ] Lovable Cloud accounts, profiles, avatars, and validation
-- [ ] Protected app navigation and dashboard
-- [ ] Notifications panel and standalone page
-- [ ] Game feature pages and working action flows
-- [ ] Installable/offline app setup and metadata
+- [x] Cinematic homepage backgrounds and image blending
+- [x] Lovable Cloud accounts, profiles, avatars, and validation
+- [x] Protected app navigation and dashboard
+- [x] Notifications panel and standalone page
+- [x] Game feature pages and working action flows
+- [x] Installable/offline app setup and metadata
 - [ ] Responsive, theme, runtime, and build verification
