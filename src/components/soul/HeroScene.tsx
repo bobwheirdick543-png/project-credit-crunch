@@ -24,7 +24,7 @@ const ROUTES: [number, number][] = [[0, 1], [1, 2], [2, 3], [2, 4], [4, 5], [0, 
 function inside(x: number, z: number) {
   let c = false;
   for (let i = 0, j = POLY.length - 1; i < POLY.length; j = i++) {
-    const [xi, zi] = POLY[i], [xj, zj] = POLY[j];
+    const [xi, zi] = POLY[i]!, [xj, zj] = POLY[j]!;
     if (zi > z !== zj > z && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) c = !c;
   }
   return c;
@@ -41,7 +41,7 @@ function Terrain({ dark }: { dark: boolean }) {
   const geo = useMemo(() => {
     const plane = new THREE.PlaneGeometry(12, 10, 70, 60).toNonIndexed();
     plane.rotateX(-Math.PI / 2);
-    const p = plane.attributes.position;
+    const p = plane.getAttribute("position");
     const out: number[] = [];
     for (let i = 0; i < p.count; i += 3) {
       const cx = (p.getX(i) + p.getX(i + 1) + p.getX(i + 2)) / 3;
@@ -137,7 +137,7 @@ function Dust({ count, color }: { count: number; color: string }) {
     return g;
   }, [count]);
   useFrame((_, d) => {
-    const p = geo.attributes.position as THREE.BufferAttribute;
+    const p = geo.getAttribute("position") as THREE.BufferAttribute;
     for (let i = 0; i < count; i++) { let y = p.getY(i) + Math.min(d, 0.05) * 0.25; if (y > 4) y = 0; p.setY(i, y); }
     p.needsUpdate = true;
   });
@@ -157,7 +157,7 @@ export default function HeroScene() {
   const [dust, setDust] = useState(mobile ? 50 : 150);
 
   useEffect(() => {
-    const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting));
+    const io = new IntersectionObserver(([e]) => setVisible(!!e?.isIntersecting));
     if (wrap.current) io.observe(wrap.current);
     return () => io.disconnect();
   }, []);
@@ -177,7 +177,7 @@ export default function HeroScene() {
         <group position={[0, -0.5, 0]}>
           <Terrain dark={dark} />
           {ROUTES.map(([a, b], i) => (
-            <Artery key={i} a={cities[a]} b={cities[b]} color={i % 3 === 2 ? purple : amber} speed={0.6 + (i % 4) * 0.25} />
+            <Artery key={i} a={cities[a]!} b={cities[b]!} color={i % 3 === 2 ? purple : amber} speed={0.6 + (i % 4) * 0.25} />
           ))}
           {cities.map((p, i) => <Hub key={i} pos={p} amber={amber} purple={purple} />)}
           <Dust count={dust} color={amber} />
