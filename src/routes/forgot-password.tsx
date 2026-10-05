@@ -1,0 +1,11 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { AuthShell } from "@/components/soul/AuthShell";
+import { supabase } from "@/integrations/supabase/client";
+import { emailSchema } from "@/lib/validation";
+
+export const Route = createFileRoute("/forgot-password")({ ssr: false, head: () => ({ meta: [{ title: "Reset password — Soul Life" }, { name: "description", content: "Request a secure Soul Life password reset." }, { property: "og:title", content: "Reset password — Soul Life" }, { property: "og:description", content: "Get back into your Soul Empire." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }), component: Forgot });
+function Forgot() { const [email,setEmail]=useState(""); const [sent,setSent]=useState(false); const submit=async(e:React.FormEvent)=>{e.preventDefault();const p=emailSchema.safeParse(email);if(!p.success)return toast.error(p.error.issues[0]?.message ?? "Check your email");const {error}=await supabase.auth.resetPasswordForEmail(p.data,{redirectTo:`${window.location.origin}/reset-password`});if(error)return toast.error(error.message);setSent(true)}; return <AuthShell eyebrow="ACCOUNT RECOVERY" title="Find your way back." copy="We’ll send a secure reset link to your verified email address.">{sent?<div className="text-center"><h2 className="text-2xl font-bold">Check your inbox</h2><p className="mt-3 text-muted-foreground">If an account exists for {email}, a reset link is on its way.</p><Button asChild className="glass-button mt-6"><Link to="/login">Back to sign in</Link></Button></div>:<form onSubmit={submit} className="space-y-4"><label className="text-sm font-semibold" htmlFor="recovery-email">Email address</label><Input id="recovery-email" type="email" className="glass-input h-12" value={email} onChange={(e)=>setEmail(e.target.value)} /><Button className="glass-button h-12 w-full">Send reset link</Button><Button asChild variant="ghost" className="w-full"><Link to="/login">Cancel</Link></Button></form>}</AuthShell>; }
