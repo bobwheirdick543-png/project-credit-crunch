@@ -7,6 +7,9 @@ import {
 import { Intro } from "@/components/soul/Intro";
 import { Logo, FlameMark } from "@/components/soul/Logo";
 import { useTheme, type ThemePref } from "@/lib/theme";
+import sunset from "@/assets/soul-life-sunset.jpg.asset.json";
+import cityImage from "@/assets/soul-life-city.jpg.asset.json";
+import { Link } from "@tanstack/react-router";
 
 const HeroScene = lazy(() => import("@/components/soul/HeroScene"));
 const StreetScene = lazy(() => import("@/components/soul/StreetScene"));
@@ -78,10 +81,10 @@ function Nav() {
         <Logo />
         <div className="flex items-center gap-2">
           <ThemeSwitch />
-          <button className="hidden rounded-full px-4 py-2 text-sm font-semibold hover:text-primary sm:block">LOGIN</button>
-          <button className="rounded-full bg-primary px-3 py-2 text-xs font-bold text-primary-foreground transition-transform hover:scale-105 sm:px-4 sm:text-sm">
+          <Link to="/login" className="hidden rounded-full px-4 py-2 text-sm font-semibold hover:text-primary sm:block">LOGIN</Link>
+          <Link to="/signup" className="rounded-full bg-primary px-3 py-2 text-xs font-bold text-primary-foreground transition-transform hover:scale-105 sm:px-4 sm:text-sm">
             <span className="sm:hidden">JOIN</span><span className="hidden sm:inline">CREATE ACCOUNT</span>
-          </button>
+          </Link>
         </div>
       </nav>
     </header>
@@ -107,23 +110,23 @@ function Ticker() {
 
 function Hero() {
   return (
-    <section className="bg-sky relative flex min-h-[100svh] items-end overflow-hidden pb-20 pt-28 sm:items-center">
+    <section className="cinematic-zone-a relative flex min-h-[150svh] items-center overflow-hidden pb-20 pt-28" style={{ "--zone-image": `url(${sunset.url})` } as React.CSSProperties}>
       <Suspense fallback={null}><HeroScene /></Suspense>
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background via-background/60 to-transparent" />
       <div className="relative mx-auto w-full max-w-6xl px-5">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.8 }} className="max-w-2xl">
-          <p className="mb-4 font-mono text-xs tracking-[0.35em] text-primary">BLACKLISTED SOULS PRESENTS</p>
-          <h1 className="text-hero-gradient text-5xl font-bold leading-[0.95] sm:text-7xl lg:text-8xl">LIVE YOUR SOUL LIFE</h1>
-          <p className="mt-5 max-w-md text-lg text-muted-foreground">From the streets to everything. Build your empire across Nigeria.</p>
+          <div className="glass-card max-w-2xl p-6 sm:p-8"><p className="mb-4 font-mono text-xs tracking-[0.25em] text-primary">● BLACKLISTED SOULS PRESENTS</p>
+          <h1 className="text-5xl font-bold leading-[0.95] text-scene-foreground sm:text-7xl lg:text-8xl">LIVE YOUR<br/>SOUL LIFE<br/><span className="text-primary">IN NIGERIA</span></h1>
+          <p className="mt-5 max-w-md text-lg text-scene-muted">From the streets to everything. Build your empire across Nigeria.</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href="#features" className={btnPrimary}><Play className="h-4 w-4 fill-current" /> ENTER SOUL EMPIRE</a>
-            <button className={btnGhost}><Play className="h-4 w-4" /> WATCH TRAILER</button>
+            <Link to="/signup" className={btnPrimary}><Play className="h-4 w-4 fill-current" /> ENTER SOUL EMPIRE</Link>
+            <a href="#world" className={btnGhost}><Play className="h-4 w-4" /> EXPLORE THE WORLD</a>
           </div>
-          <div className="mt-6"><Ticker /></div>
+          <div className="mt-6"><Ticker /></div></div>
         </motion.div>
       </div>
-      <a href="#features" className="absolute bottom-4 left-1/2 flex -translate-x-1/2 flex-col items-center font-mono text-[10px] tracking-widest text-muted-foreground">
-        Scroll to explore
+      <a href="#features" className="absolute bottom-12 left-1/2 flex -translate-x-1/2 flex-col items-center font-mono text-[10px] tracking-widest text-scene-foreground">
+        STEP INTO THE WORLD
         <motion.span animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 1.6 }}><ChevronDown className="h-5 w-5 text-primary" /></motion.span>
       </a>
     </section>

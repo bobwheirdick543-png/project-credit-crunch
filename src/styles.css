@@ -37,6 +37,10 @@
   --color-discord: var(--discord);
   --color-brand-foreground: var(--brand-foreground);
   --color-void: var(--void);
+  --color-success: var(--success);
+  --color-scene-foreground: var(--scene-foreground);
+  --color-scene-muted: var(--scene-muted);
+  --color-overlay: var(--overlay);
 }
 
 :root {
@@ -58,6 +62,10 @@
   --discord: oklch(0.55 0.2 275);
   --brand-foreground: oklch(0.99 0 0);
   --void: oklch(0 0 0);
+  --success: oklch(0.55 0.15 150);
+  --scene-foreground: oklch(0.99 0 0);
+  --scene-muted: oklch(0.9 0.01 80);
+  --overlay: oklch(0.05 0 0 / 75%);
   --sky-a: oklch(0.975 0.005 85);
   --sky-b: oklch(0.93 0.01 80);
   --hero-from: oklch(0.55 0.19 40);
@@ -85,8 +93,45 @@
 @utility glass {
   background: var(--card);
   backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
   border: 1px solid var(--border);
+}
+@utility glass-card {
+  background: linear-gradient(145deg, color-mix(in oklab, var(--card) 96%, transparent), color-mix(in oklab, var(--card) 74%, transparent));
+  backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid color-mix(in oklab, var(--foreground) 12%, transparent);
+  border-radius: 1.5rem;
+  box-shadow: inset 0 1px color-mix(in oklab, var(--foreground) 10%, transparent), 0 24px 80px color-mix(in oklab, var(--void) 18%, transparent);
+}
+@utility glass-input {
+  background: color-mix(in oklab, var(--card) 75%, transparent);
+  backdrop-filter: blur(20px);
+  border-color: color-mix(in oklab, var(--foreground) 14%, transparent);
+  &:focus-visible { border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 24%, transparent); }
+}
+@utility glass-button {
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-deep));
+  color: var(--primary-foreground);
+  box-shadow: 0 12px 32px color-mix(in oklab, var(--primary) 25%, transparent);
+  transition: transform 0.25s cubic-bezier(.2,.8,.2,1), box-shadow 0.25s;
+  &:hover { transform: translateY(-2px); box-shadow: 0 16px 38px color-mix(in oklab, var(--primary) 36%, transparent); }
+}
+@utility glass-button-ghost {
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--card) 66%, transparent);
+  backdrop-filter: blur(18px);
+  border: 1px solid color-mix(in oklab, var(--foreground) 15%, transparent);
+}
+@utility glass-pill {
+  background: color-mix(in oklab, var(--card) 72%, transparent);
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid color-mix(in oklab, var(--foreground) 12%, transparent);
+  border-radius: 999px;
+}
+@utility aurora-bg {
+  background-color: var(--background);
+  background-image: radial-gradient(ellipse at 10% 10%, color-mix(in oklab, var(--primary) 14%, transparent), transparent 42%), radial-gradient(ellipse at 90% 18%, color-mix(in oklab, var(--secondary) 14%, transparent), transparent 40%), linear-gradient(180deg, var(--background), color-mix(in oklab, var(--background) 94%, var(--void)));
+  background-attachment: fixed;
 }
 @utility text-hero-gradient {
   background: linear-gradient(120deg, var(--hero-from) 10%, var(--hero-to) 90%);
@@ -125,9 +170,22 @@
 .animate-rise { animation: rise linear infinite; }
 .animate-float { animation: float-idle 5s ease-in-out infinite; }
 
-@media (prefers-reduced-motion: reduce) {
-  .animate-rise, .animate-float { animation: none; }
+.auth-scene {
+  background-color: var(--void);
+  background-image: linear-gradient(90deg, color-mix(in oklab, var(--void) 84%, transparent), color-mix(in oklab, var(--void) 34%, transparent)), var(--scene-a), var(--scene-b);
+  background-size: cover, cover, cover;
+  background-position: center, center, center;
+  background-attachment: fixed;
+  position: relative;
 }
+.auth-scene::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, var(--background)); pointer-events: none; }
+.map-orbit { position: absolute; width: min(60vw, 28rem); aspect-ratio: 1; border: 1px solid color-mix(in oklab, var(--primary) 55%, transparent); border-radius: 44% 56% 48% 52%; box-shadow: inset 0 0 80px color-mix(in oklab, var(--primary) 18%, transparent), 0 0 70px color-mix(in oklab, var(--secondary) 15%, transparent); animation: orbit 18s linear infinite; }
+@keyframes orbit { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise, .animate-float, .map-orbit { animation: none; }
+}
+@media (max-width: 767px) { .auth-scene, .aurora-bg { background-attachment: scroll; } }
 
 @layer base {
   * { border-color: var(--color-border); }
@@ -139,5 +197,5 @@
     transition: background-color 0.3s ease, color 0.3s ease;
     overflow-x: hidden;
   }
-  h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.03em; }
+  h1, h2, h3 { font-family: var(--font-display); letter-spacing: 0; }
 }
