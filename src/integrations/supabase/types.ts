@@ -14,16 +14,120 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      notifications: {
+        Row: {
+          action_path: string | null
+          body: string
+          category: string
+          created_at: string
+          id: string
+          is_read: boolean
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action_path?: string | null
+          body: string
+          category?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          title: string
+          user_id: string
+        }
+        Update: {
+          action_path?: string | null
+          body?: string
+          category?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_path: string | null
+          city: string | null
+          created_at: string
+          email: string
+          habz: number
+          id: string
+          level: number
+          soul_rating: number
+          updated_at: string
+          username: string | null
+          vault: number
+          whatsapp: string | null
+          xp: number
+        }
+        Insert: {
+          avatar_path?: string | null
+          city?: string | null
+          created_at?: string
+          email: string
+          habz?: number
+          id: string
+          level?: number
+          soul_rating?: number
+          updated_at?: string
+          username?: string | null
+          vault?: number
+          whatsapp?: string | null
+          xp?: number
+        }
+        Update: {
+          avatar_path?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string
+          habz?: number
+          id?: string
+          level?: number
+          soul_rating?: number
+          updated_at?: string
+          username?: string | null
+          vault?: number
+          whatsapp?: string | null
+          xp?: number
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +254,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
