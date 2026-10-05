@@ -168,13 +168,13 @@ export default function HeroScene() {
 
   return (
     <div ref={wrap} className="absolute inset-0">
-      <Canvas dpr={[1, 1.5]} frameloop={visible ? "always" : "never"} camera={{ position: [0, 8, 9], fov: mobile ? 55 : 40 }} gl={{ antialias: true, alpha: true }}>
+      <Canvas dpr={[1, 1.5]} frameloop={visible ? "always" : "never"} camera={{ position: [0, 9, 11], fov: mobile ? 60 : 42 }} gl={{ antialias: true, alpha: true }}>
         <PerformanceMonitor onDecline={() => setDust((d) => Math.max(20, Math.floor(d / 2)))} />
         <ambientLight intensity={dark ? 0.35 : 0.9} />
         <hemisphereLight args={[dark ? "#7B3FE4" : "#fff6e5", dark ? "#000" : "#c9b48f", dark ? 0.4 : 0.6]} />
         <directionalLight position={[5, 8, 3]} intensity={dark ? 1.2 : 1.6} color={dark ? "#ffd59a" : "#fff1d6"} />
         <directionalLight position={[-6, 2, -6]} intensity={dark ? 0.8 : 0.2} color={dark ? "#F5A623" : "#fff"} />
-        <group position={[0, -0.5, 0]}>
+        <group position={[mobile ? 0 : 2.2, mobile ? 1 : -0.5, mobile ? -2 : 0]} scale={mobile ? 0.65 : 0.8}>
           <Terrain dark={dark} />
           {ROUTES.map(([a, b], i) => (
             <Artery key={i} a={cities[a]!} b={cities[b]!} color={i % 3 === 2 ? purple : amber} speed={0.6 + (i % 4) * 0.25} />
