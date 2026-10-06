@@ -1,3 +1,71 @@
-import{createFileRoute}from"@tanstack/react-router";import{Camera,Crown,MapPin,Star,Upload}from"lucide-react";import{useState}from"react";import{toast}from"sonner";import{AppShell}from"@/components/soul/AppShell";import{Button}from"@/components/ui/button";import{supabase}from"@/integrations/supabase/client";import{useAuth}from"@/lib/auth";
-export const Route=createFileRoute("/profile")({ssr:false,head:()=>({meta:[{title:"Profile — Soul Life"},{name:"description",content:"View and update your Soul Life identity."},{property:"og:title",content:"Profile — Soul Life"},{property:"og:description",content:"Your identity across Nigeria."},{property:"og:type",content:"profile"},{name:"twitter:card",content:"summary"}]}),component:Profile});
-function Profile(){const{user,profile,refreshProfile}=useAuth();const[busy,setBusy]=useState(false);const upload=async(e:React.ChangeEvent<HTMLInputElement>)=>{const file=e.target.files?.[0];if(!file||!user)return;if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024)return toast.error('Choose a JPG, PNG or WebP under 5MB');setBusy(true);const ext=file.name.split('.').pop()?.toLowerCase()??'jpg';const path=`${user.id}/avatar.${ext}`;const{error}=await supabase.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});if(!error)await supabase.from('profiles').update({avatar_path:path}).eq('id',user.id);setBusy(false);if(error)return toast.error(error.message);await refreshProfile();toast.success('Avatar updated')};return <AppShell title="Profile" copy="Your public Soul identity and personal progress."><section className="glass-card p-6 sm:p-8"><div className="flex flex-col items-center gap-6 sm:flex-row"><div className="flex h-28 w-28 items-center justify-center rounded-full bg-primary/15 font-display text-4xl font-bold text-primary">{(profile?.username??'S').slice(0,2).toUpperCase()}</div><div className="flex-1 text-center sm:text-left"><h2 className="text-3xl font-bold">{profile?.username??'New Soul'}</h2><p className="mt-2 flex items-center justify-center gap-2 text-muted-foreground sm:justify-start"><MapPin/>{profile?.city??'Choose your city'}</p><label className="mt-4 inline-flex cursor-pointer"><input type="file" className="sr-only" accept="image/png,image/jpeg,image/webp" onChange={upload}/><span className="glass-button inline-flex items-center gap-2 px-4 py-2">{busy?<Upload className="animate-pulse"/>:<Camera/>}Change avatar</span></label></div></div><div className="mt-8 grid gap-3 sm:grid-cols-3"><div className="glass-pill p-4"><Crown className="text-primary"/><p className="mt-2 text-sm">Level {profile?.level??1}</p></div><div className="glass-pill p-4"><Star className="text-primary"/><p className="mt-2 text-sm">{profile?.soul_rating??0} rating</p></div><div className="glass-pill p-4"><Upload className="text-primary"/><p className="mt-2 text-sm">{profile?.xp??0} XP</p></div></div></section></AppShell>}
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { AppNav } from "@/components/soul/AppNav";
+import { BackButton } from "@/components/soul/BackButton";
+import { useAuth } from "@/lib/auth";
+import { MapPin } from "lucide-react";
+
+export const Route = createFileRoute("/profile")({
+  ssr: false,
+  head: () => ({ meta: [{ title: "Profile — Soul Life" }] }),
+  component: ProfilePage,
+});
+
+function ProfilePage() {
+  const { profile, user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) void navigate({ to: "/login", replace: true });
+  }, [loading, user, navigate]);
+
+  return (
+    <div className="aurora-bg min-h-screen pb-20">
+      <AppNav />
+      <BackButton />
+      <main className="mx-auto max-w-6xl px-5 pt-28">
+        <h1 className="text-3xl font-bold">Profile</h1>
+
+        <div className="mt-8 glass-card p-8">
+          <div className="flex items-center gap-5">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-2xl font-bold text-white">
+              {(profile?.username ?? "S").slice(0, 2).toUpperCase()}
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold">{profile?.username ?? "New Soul"}</h2>
+              <p className="text-sm text-muted-foreground">{user?.email}</p>
+              <div className="mt-2 flex gap-2">
+                <span className="glass-pill flex items-center gap-1 text-xs">
+                  <MapPin className="h-3 w-3" />
+                  {profile?.city ?? "Nigeria"}
+                </span>
+                <span className="glass-pill text-xs">LVL {profile?.level ?? 1}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            <div className="rounded-2xl bg-primary/10 p-4 text-center">
+              <p className="text-2xl font-bold text-primary">ₕ{(profile?.habz ?? 5000).toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">Wallet</p>
+            </div>
+            <div className="rounded-2xl bg-primary/10 p-4 text-center">
+              <p className="text-2xl font-bold">{profile?.level ?? 1}</p>
+              <p className="text-xs text-muted-foreground">Level</p>
+            </div>
+            <div className="rounded-2xl bg-primary/10 p-4 text-center">
+              <p className="text-2xl font-bold">{profile?.soul_rating ?? 0}</p>
+              <p className="text-xs text-muted-foreground">Soul Rating</p>
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <button className="glass-button-ghost">Edit Title</button>
+            <button className="glass-button-ghost">Edit Badge</button>
+            <button className="glass-button-ghost">Edit Theme</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

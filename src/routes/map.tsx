@@ -1,10 +1,69 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Building2, Lock, MapPin } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { AppShell } from "@/components/soul/AppShell";
-import { Button } from "@/components/ui/button";
-const cities=["Ibadan","Enugu","Kano","Port Harcourt","Abuja","Lagos","BS Island"];
-const buildings=["Vault House","Empire Tower","Trade Nexus","Feast Hall","Iron Forge","Restoration Hall","Fortune Den","Vibe Temple","Enforcement Post","Judgment Seat","The Crucible","Soul Tower","Gang HQ","Crypto Exchange","Property Office","Pet Store","Card Altar","Chapel","Airdrop Tower","Bank Vault"];
-export const Route=createFileRoute("/map")({ssr:false,head:()=>({meta:[{title:"World map — Soul Life"},{name:"description",content:"Explore cities, buildings and BS Island in Soul Life."},{property:"og:title",content:"World map — Soul Life"},{property:"og:description",content:"Explore a living Nigeria."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),component:MapPage});
-function MapPage(){const[city,setCity]=useState("Ibadan");return <AppShell title="Your Nigeria" copy="Every city has a different economy, rhythm and opportunity."><div className="glass-card relative flex min-h-80 items-center justify-center overflow-hidden p-8"><div className="map-orbit"/><div className="relative text-center"><MapPin className="mx-auto h-12 w-12 text-primary"/><p className="mt-3 font-display text-4xl font-bold">{city}</p><p className="text-muted-foreground">Select a city to explore</p></div></div><div className="mt-5 flex gap-2 overflow-x-auto pb-2">{cities.map(c=><Button key={c} className="glass-pill shrink-0 rounded-full" variant={city===c?"default":"outline"} onClick={()=>{if(c==="BS Island")toast.message("BS Island unlocks at Level 20");else setCity(c)}}>{c==="BS Island"&&<Lock/>}{c}</Button>)}</div><div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{buildings.map((b,i)=><button key={b} className="glass-card min-h-32 p-4 text-left transition-transform hover:-translate-y-1" onClick={()=>toast.success(`${b} selected in ${city}`)}><Building2 className="text-primary"/><p className="mt-5 font-semibold">{b}</p><p className="mt-1 text-xs text-muted-foreground">{i%3===0?"Open now":"Available in this city"}</p></button>)}</div></AppShell>}
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { AppNav } from "@/components/soul/AppNav";
+import { BackButton } from "@/components/soul/BackButton";
+import { useAuth } from "@/lib/auth";
+import { Lock } from "lucide-react";
+
+export const Route = createFileRoute("/map")({
+  ssr: false,
+  head: () => ({ meta: [{ title: "World Map — Soul Life" }] }),
+  component: MapPage,
+});
+
+const CITIES = ["Ibadan", "Enugu", "Kano", "Port Harcourt", "Abuja", "Lagos", "BS Island"];
+
+const BUILDINGS = [
+  "Vault House", "Empire Tower", "Trade Nexus", "Feast Hall", "Iron Forge",
+  "Restoration Hall", "Fortune Den", "Vibe Temple", "Enforcement Post",
+  "Judgment Seat", "The Crucible", "Soul Tower", "Gang HQ", "Crypto Exchange",
+  "Property Office", "Pet Store", "Card Altar", "Chapel", "Airdrop Tower", "Bank Vault",
+];
+
+function MapPage() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const [city, setCity] = useState("Lagos");
+
+  useEffect(() => {
+    if (!loading && !user) void navigate({ to: "/login", replace: true });
+  }, [loading, user, navigate]);
+
+  return (
+    <div className="aurora-bg min-h-screen pb-20">
+      <AppNav />
+      <BackButton />
+      <main className="mx-auto max-w-6xl px-5 pt-28">
+        <h1 className="text-3xl font-bold">Soul Nigeria</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Select a city and enter buildings</p>
+
+        <div className="mt-6 flex flex-wrap gap-2">
+          {CITIES.map((c) => (
+            <button
+              key={c}
+              onClick={() => setCity(c)}
+              className={`glass-pill px-4 py-2 text-sm font-medium ${
+                city === c ? "bg-primary/15 text-primary border-primary/40" : ""
+              }`}
+            >
+              {c === "BS Island" && <Lock className="mr-1 inline h-3 w-3" />}
+              {c}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-8">
+          <h2 className="mb-4 text-lg font-semibold">{city} Buildings</h2>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {BUILDINGS.map((b) => (
+              <button key={b} className="glass-card glow-hover p-4 text-left transition-all">
+                <p className="font-semibold">{b}</p>
+                <p className="mt-1 text-xs text-muted-foreground">Tap to enter</p>
+              </button>
+            ))}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

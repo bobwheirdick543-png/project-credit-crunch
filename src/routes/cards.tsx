@@ -1,2 +1,51 @@
-import{createFileRoute}from"@tanstack/react-router";import{Layers3,PackageOpen,Sparkles,Store}from"lucide-react";import{FeaturePage}from"@/components/soul/FeaturePage";
-export const Route=createFileRoute("/cards")({ssr:false,head:()=>({meta:[{title:"Cards — Soul Life"},{name:"description",content:"Collect and use Soul Life ability cards."},{property:"og:title",content:"Cards — Soul Life"},{property:"og:description",content:"Build a card collection that changes your play."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),component:()=> <FeaturePage title="Cards" copy="Collect advantages. Build your perfect hand." tabs={["Collection","Packs","Decks"]} items={[{title:"My collection",copy:"Review every card you own.",action:"View cards",Icon:Layers3},{title:"Open a pack",copy:"Reveal new boosts and rare abilities.",action:"Open pack",Icon:PackageOpen},{title:"Build a deck",copy:"Combine cards for your play style.",action:"Build deck",Icon:Sparkles},{title:"Card market",copy:"Trade duplicates with other Souls.",action:"Visit market",Icon:Store}]}/>});
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { AppNav } from "@/components/soul/AppNav";
+import { BackButton } from "@/components/soul/BackButton";
+import { useAuth } from "@/lib/auth";
+
+export const Route = createFileRoute("/cards")({
+  ssr: false,
+  head: () => ({ meta: [{ title: "Cards — Soul Life" }] }),
+  component: CardsPage,
+});
+
+const TABS = ["Collection", "Active Spawns", "Abilities", "Stats"] as const;
+
+function CardsPage() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const [tab, setTab] = useState<(typeof TABS)[number]>("Collection");
+
+  useEffect(() => {
+    if (!loading && !user) void navigate({ to: "/login", replace: true });
+  }, [loading, user, navigate]);
+
+  return (
+    <div className="aurora-bg min-h-screen pb-20">
+      <AppNav />
+      <BackButton />
+      <main className="mx-auto max-w-6xl px-5 pt-28">
+        <h1 className="text-3xl font-bold">Soul Cards</h1>
+
+        <div className="mt-6 flex flex-wrap gap-2">
+          {TABS.map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`glass-pill px-4 py-2 text-sm font-medium ${
+                tab === t ? "bg-primary/15 text-primary border-primary/40" : ""
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-8 glass-card p-8 text-center">
+          <p className="text-sm text-muted-foreground">No cards in your collection yet.</p>
+        </div>
+      </main>
+    </div>
+  );
+}

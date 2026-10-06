@@ -1,2 +1,34 @@
-import{createFileRoute}from"@tanstack/react-router";import{Bone,Heart,PawPrint,ShoppingBag}from"lucide-react";import{FeaturePage}from"@/components/soul/FeaturePage";
-export const Route=createFileRoute("/pets")({ssr:false,head:()=>({meta:[{title:"Pets — Soul Life"},{name:"description",content:"Adopt and care for companions in Soul Life."},{property:"og:title",content:"Pets — Soul Life"},{property:"og:description",content:"Find a companion for your journey."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),component:()=> <FeaturePage title="Pets" copy="Loyal companions with their own needs and perks." tabs={["My pets","Adopt","Care"]} items={[{title:"Adopt a pet",copy:"Meet companions waiting for a home.",action:"Visit store",Icon:PawPrint},{title:"Feed and care",copy:"Keep energy and loyalty high.",action:"Care",Icon:Bone},{title:"Bond",copy:"Build trust and unlock companion perks.",action:"Spend time",Icon:Heart},{title:"Pet supplies",copy:"Browse food, toys and accessories.",action:"Shop",Icon:ShoppingBag}]}/>});
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { AppNav } from "@/components/soul/AppNav";
+import { BackButton } from "@/components/soul/BackButton";
+import { useAuth } from "@/lib/auth";
+
+export const Route = createFileRoute("/pets")({
+  ssr: false,
+  head: () => ({ meta: [{ title: "Pets — Soul Life" }] }),
+  component: PetsPage,
+});
+
+function PetsPage() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) void navigate({ to: "/login", replace: true });
+  }, [loading, user, navigate]);
+
+  return (
+    <div className="aurora-bg min-h-screen pb-20">
+      <AppNav />
+      <BackButton />
+      <main className="mx-auto max-w-6xl px-5 pt-28">
+        <h1 className="text-3xl font-bold">Soul Companions</h1>
+        <div className="mt-8 glass-card p-8 text-center">
+          <p className="text-sm text-muted-foreground">You don't have a pet yet.</p>
+          <button className="glass-button mt-6">Adopt a Pet</button>
+        </div>
+      </main>
+    </div>
+  );
+}

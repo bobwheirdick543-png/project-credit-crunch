@@ -1,2 +1,70 @@
-import{createFileRoute}from"@tanstack/react-router";import{Crown,MapPin,Trophy}from"lucide-react";import{AppShell}from"@/components/soul/AppShell";const players=[['1','KingTunde','ₕ18.4M','Lagos'],['2','AdaBoss','ₕ12.7M','Abuja'],['3','Zainab_K','ₕ9.1M','Kano'],['4','ChidiMoves','ₕ7.8M','Enugu'],['5','MamaCash','ₕ6.4M','Ibadan']];
-export const Route=createFileRoute("/leaderboard")({ssr:false,head:()=>({meta:[{title:"Leaderboard — Soul Life"},{name:"description",content:"See the top-ranked Souls across Nigeria."},{property:"og:title",content:"Leaderboard — Soul Life"},{property:"og:description",content:"See who is running Nigeria."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),component:()=> <AppShell title="Leaderboard" copy="This week’s most powerful Souls."><div className="glass-card overflow-hidden"><div className="grid grid-cols-[3rem_1fr_auto] gap-3 border-b p-4 text-xs text-muted-foreground sm:grid-cols-[4rem_1fr_10rem_8rem]"> <span>Rank</span><span>Soul</span><span>Wealth</span><span className="hidden sm:block">City</span></div>{players.map(([r,n,w,c])=><div key={r} className="grid grid-cols-[3rem_1fr_auto] items-center gap-3 border-b p-4 last:border-0 sm:grid-cols-[4rem_1fr_10rem_8rem]"><span>{r==='1'?<Crown className="text-primary"/>:r}</span><span className="font-semibold">{n}</span><span className="font-mono text-primary">{w}</span><span className="hidden items-center gap-1 text-sm text-muted-foreground sm:flex"><MapPin className="h-3 w-3"/>{c}</span></div>)}</div><div className="glass-card mt-5 flex items-center gap-4 p-5"><Trophy className="text-primary"/><div><p className="font-semibold">Your weekly climb starts here</p><p className="text-sm text-muted-foreground">Earn, trade and compete to enter the top 100.</p></div></div></AppShell>});
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { AppNav } from "@/components/soul/AppNav";
+import { BackButton } from "@/components/soul/BackButton";
+import { useAuth } from "@/lib/auth";
+
+export const Route = createFileRoute("/leaderboard")({
+  ssr: false,
+  head: () => ({ meta: [{ title: "Leaderboard — Soul Life" }] }),
+  component: LeaderboardPage,
+});
+
+const TABS = ["Global", "Weekly", "Balance", "Messages", "Steal", "Kill"] as const;
+
+const TOP = [
+  { rank: 1, name: "KingTunde", amount: "ₕ18.4M", city: "Lagos", level: 20 },
+  { rank: 2, name: "AdaBoss", amount: "ₕ12.7M", city: "Abuja", level: 18 },
+  { rank: 3, name: "Zainab_K", amount: "ₕ9.1M", city: "Kano", level: 16 },
+];
+
+function LeaderboardPage() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const [tab, setTab] = useState<(typeof TABS)[number]>("Global");
+
+  useEffect(() => {
+    if (!loading && !user) void navigate({ to: "/login", replace: true });
+  }, [loading, user, navigate]);
+
+  return (
+    <div className="aurora-bg min-h-screen pb-20">
+      <AppNav />
+      <BackButton />
+      <main className="mx-auto max-w-6xl px-5 pt-28">
+        <h1 className="text-3xl font-bold">Soul Rankings</h1>
+
+        <div className="mt-6 flex flex-wrap gap-2">
+          {TABS.map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`glass-pill px-4 py-2 text-sm font-medium ${
+                tab === t ? "bg-primary/15 text-primary border-primary/40" : ""
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-8 space-y-3">
+          {TOP.map((p) => (
+            <div key={p.rank} className="glass-card flex items-center justify-between p-4">
+              <div className="flex items-center gap-4">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15 font-bold text-primary">
+                  {p.rank}
+                </span>
+                <div>
+                  <p className="font-semibold">{p.name}</p>
+                  <p className="text-xs text-muted-foreground">{p.city} · LVL {p.level}</p>
+                </div>
+              </div>
+              <p className="font-bold text-primary">{p.amount}</p>
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
+  );
+}

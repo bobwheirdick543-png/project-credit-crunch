@@ -1,2 +1,37 @@
-import{createFileRoute}from"@tanstack/react-router";import{Crown,Search,Shield,Users}from"lucide-react";import{FeaturePage}from"@/components/soul/FeaturePage";
-export const Route=createFileRoute("/gangs")({ssr:false,head:()=>({meta:[{title:"Gangs — Soul Life"},{name:"description",content:"Join alliances and build collective power in Soul Life."},{property:"og:title",content:"Gangs — Soul Life"},{property:"og:description",content:"Build power together."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),component:()=> <FeaturePage title="Gangs" copy="Loyalty, territory and shared ambition." tabs={["Discover","My gang","Rankings"]} items={[{title:"Find a gang",copy:"Discover crews recruiting in your city.",action:"Search",Icon:Search},{title:"Create a gang",copy:"Name your crew and invite trusted Souls.",action:"Create",Icon:Users},{title:"Territory",copy:"See influence across the city map.",action:"View map",Icon:Shield},{title:"Gang rankings",copy:"Compare wealth, wins and territory.",action:"View rankings",Icon:Crown}]}/>});
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { AppNav } from "@/components/soul/AppNav";
+import { BackButton } from "@/components/soul/BackButton";
+import { useAuth } from "@/lib/auth";
+
+export const Route = createFileRoute("/gangs")({
+  ssr: false,
+  head: () => ({ meta: [{ title: "Gangs — Soul Life" }] }),
+  component: GangsPage,
+});
+
+function GangsPage() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) void navigate({ to: "/login", replace: true });
+  }, [loading, user, navigate]);
+
+  return (
+    <div className="aurora-bg min-h-screen pb-20">
+      <AppNav />
+      <BackButton />
+      <main className="mx-auto max-w-6xl px-5 pt-28">
+        <h1 className="text-3xl font-bold">Gangs</h1>
+        <div className="mt-8 glass-card p-8 text-center">
+          <p className="text-sm text-muted-foreground">You are not in a gang yet.</p>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <button className="glass-button">Create Gang</button>
+            <button className="glass-button-ghost">Browse Gangs</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

@@ -1,3 +1,64 @@
-import{createFileRoute,useNavigate}from"@tanstack/react-router";import{Lock,LogOut,Moon,Shield}from"lucide-react";import{toast}from"sonner";import{AppShell}from"@/components/soul/AppShell";import{ThemeControl}from"@/components/soul/ThemeControl";import{Button}from"@/components/ui/button";import{supabase}from"@/integrations/supabase/client";
-export const Route=createFileRoute("/settings")({ssr:false,head:()=>({meta:[{title:"Settings — Soul Life"},{name:"description",content:"Manage Soul Life security, appearance and account settings."},{property:"og:title",content:"Settings — Soul Life"},{property:"og:description",content:"Control your account and preferences."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),component:Settings});
-function Settings(){const navigate=useNavigate();const logout=async()=>{await supabase.auth.signOut();await navigate({to:'/login',replace:true})};return <AppShell title="Settings" copy="Control how Soul Life looks, feels and protects your account."><div className="space-y-4"><section className="glass-card flex items-center justify-between gap-4 p-5"><div className="flex items-center gap-3"><Moon className="text-primary"/><div><h2 className="font-bold">Appearance</h2><p className="text-sm text-muted-foreground">Follow your device or choose a theme.</p></div></div><ThemeControl/></section><section className="glass-card p-5"><div className="flex items-center gap-3"><Shield className="text-primary"/><div><h2 className="font-bold">Account security</h2><p className="text-sm text-muted-foreground">Leaked-password checks and current-password protection are active.</p></div></div><Button variant="outline" className="glass-button-ghost mt-4" onClick={()=>toast.message('Use Forgot password on the sign-in screen to change it securely.')}><Lock/>Change password</Button></section><Button variant="destructive" className="rounded-full" onClick={logout}><LogOut/>Sign out</Button></div></AppShell>}
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { AppNav } from "@/components/soul/AppNav";
+import { BackButton } from "@/components/soul/BackButton";
+import { useAuth } from "@/lib/auth";
+import { ThemeControl } from "@/components/soul/ThemeControl";
+
+export const Route = createFileRoute("/settings")({
+  ssr: false,
+  head: () => ({ meta: [{ title: "Settings — Soul Life" }] }),
+  component: SettingsPage,
+});
+
+function SettingsPage() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) void navigate({ to: "/login", replace: true });
+  }, [loading, user, navigate]);
+
+  return (
+    <div className="aurora-bg min-h-screen pb-20">
+      <AppNav />
+      <BackButton />
+      <main className="mx-auto max-w-6xl px-5 pt-28">
+        <h1 className="text-3xl font-bold">Settings</h1>
+
+        <div className="mt-8 space-y-6">
+          <div className="glass-card p-6">
+            <h2 className="font-semibold">Theme</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Choose light, dark, or system</p>
+            <div className="mt-4">
+              <ThemeControl />
+            </div>
+          </div>
+
+          <div className="glass-card p-6">
+            <h2 className="font-semibold">Notifications</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Manage how you receive alerts</p>
+          </div>
+
+          <div className="glass-card p-6">
+            <h2 className="font-semibold">Privacy</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Control who can see your activity</p>
+          </div>
+
+          <div className="glass-card p-6">
+            <h2 className="font-semibold">Account</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Email, password, and linked accounts</p>
+          </div>
+
+          <div className="glass-card border-destructive/30 p-6">
+            <h2 className="font-semibold text-destructive">Danger Zone</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Delete account or reset progress</p>
+            <button className="mt-4 rounded-full border border-destructive/50 px-4 py-2 text-sm text-destructive">
+              Delete Account
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
