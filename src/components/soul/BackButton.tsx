@@ -1,8 +1,16 @@
 import { useRouter } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
 
 export function BackButton() {
   const router = useRouter();
-  return <Button type="button" variant="ghost" className="glass-pill rounded-full" onClick={() => router.history.back()}><ArrowLeft /> Back</Button>;
+  return (
+    <button
+      type="button"
+      onClick={() => router.history.back()}
+      className="glass-pill fixed left-4 top-20 z-30 flex items-center gap-1 px-3 py-2 text-sm font-medium"
+    >
+      <ChevronLeft className="h-4 w-4" />
+      Back
+    </button>
+  );
 }
