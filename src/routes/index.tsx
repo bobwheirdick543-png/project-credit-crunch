@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import {
-  Zap, Building2, Users, Crown, Play, ChevronDown, Check, ChevronLeft, ChevronRight, Lock, MessageCircle, Monitor, Sun, Moon, ArrowRight, MapPin,
+  Zap, Building2, Users, Crown, Play, ChevronDown, Check, ChevronLeft, ChevronRight, Lock, MessageCircle, Monitor, Sun, Moon, ArrowRight, MapPin, Leaf, Shield, Gem,
 } from "lucide-react";
 import { Intro } from "@/components/soul/Intro";
 import { Logo, FlameMark } from "@/components/soul/Logo";
@@ -30,6 +30,34 @@ export const Route = createFileRoute("/")({
 
 const INTRO_KEY = "sl-intro-seen";
 
+function Bubbles() {
+  const bubbles = Array.from({ length: 14 }).map((_, i) => ({
+    id: i,
+    size: 6 + Math.random() * 18,
+    left: Math.random() * 100,
+    delay: Math.random() * 12,
+    duration: 10 + Math.random() * 14,
+  }));
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      {bubbles.map((b) => (
+        <div
+          key={b.id}
+          className="bubble"
+          style={{
+            width: b.size,
+            height: b.size,
+            left: `${b.left}%`,
+            bottom: -20,
+            animationDelay: `${b.delay}s`,
+            animationDuration: `${b.duration}s`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 function Home() {
   const [intro, setIntro] = useState(() => {
     const t = Number(localStorage.getItem(INTRO_KEY) || 0);
@@ -43,77 +71,91 @@ function Home() {
       <AnimatePresence>{intro && <Intro onDone={done} />}</AnimatePresence>
       <Nav />
 
-      {/* ZONE A */}
+      {/* HERO - AquaLife style */}
       <section
-        className="cinematic-zone-a grain-overlay vignette relative flex min-h-[140svh] items-center overflow-hidden pb-24 pt-32"
+        className="cinematic-zone-a relative flex min-h-[100svh] items-center overflow-hidden pb-28 pt-28"
         style={{ "--zone-image-a": `url(${sunset.url})` } as React.CSSProperties}
       >
+        <Bubbles />
         <div className="zone-blend-bottom" />
-        <div className="relative z-10 mx-auto w-full max-w-6xl px-5">
+
+        <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-10 px-5 lg:grid-cols-2">
+          {/* Left glass panel */}
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-xl"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           >
-            <p className="mb-5 font-mono text-[11px] uppercase tracking-[0.28em] text-primary">
-              ● Elevate Your Life
-            </p>
-            <h1 className="text-[3.25rem] font-semibold leading-[1.05] tracking-tight text-scene-foreground sm:text-6xl lg:text-7xl">
-              Live Your<br />
-              <span className="text-hero-gradient">Soul Life</span><br />
-              in Nigeria
-            </h1>
-            <p className="mt-6 max-w-md text-base leading-relaxed text-scene-muted sm:text-lg">
-              From the streets to everything. Build your empire across Nigeria with premium experiences that last a lifetime.
-            </p>
-            <div className="mt-9 flex flex-wrap items-center gap-3">
-              <Link to="/signup" className="glass-button">
-                Enter Soul Empire <ArrowRight className="h-4 w-4" />
-              </Link>
-              <a href="#world" className="glass-button-ghost">
-                <Play className="h-4 w-4" /> Watch Story
-              </a>
+            <div className="glass-card p-7 sm:p-9">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                Dive Into a Better World
+              </div>
+
+              <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-scene-foreground sm:text-5xl lg:text-6xl">
+                Discover.<br />
+                Experience.<br />
+                <span className="text-hero-gradient">Protect.</span>
+              </h1>
+
+              <p className="mt-5 max-w-md text-sm leading-relaxed text-scene-muted sm:text-base">
+                Step into the wonders of Nigeria and create memories that last a lifetime. Build your empire from the streets up.
+              </p>
+
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Link to="/signup" className="glass-button">
+                  Dive In <ArrowRight className="h-4 w-4" />
+                </Link>
+                <a href="#world" className="glass-button-ghost">
+                  <Play className="h-4 w-4" /> Watch Story
+                </a>
+              </div>
+
+              {/* Feature pills */}
+              <div className="mt-8 grid grid-cols-3 gap-3">
+                {[
+                  { I: Leaf, t: "Eco Friendly", s: "Sustainable Play" },
+                  { I: Gem, t: "Premium", s: "World Class" },
+                  { I: Shield, t: "Safe & Secure", s: "Trusted" },
+                ].map(({ I, t, s }) => (
+                  <div key={t} className="rounded-2xl border border-primary/20 bg-primary/5 p-3 text-center">
+                    <I className="mx-auto mb-1.5 h-4 w-4 text-primary" />
+                    <p className="text-[11px] font-semibold text-scene-foreground">{t}</p>
+                    <p className="text-[10px] text-muted-foreground">{s}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </motion.div>
+
+          {/* Right side - visual space kept open for background */}
+          <div className="hidden lg:block" />
         </div>
 
-        {/* Floating stats bar - ArtVista style */}
-        <div className="absolute bottom-16 left-1/2 z-10 w-full max-w-3xl -translate-x-1/2 px-5">
-          <div className="glass-card flex items-center justify-between gap-4 px-6 py-4 sm:px-8">
-            <div className="flex flex-col items-center text-center sm:flex-row sm:gap-3">
-              <span className="text-lg font-semibold text-scene-foreground sm:text-xl">12K+</span>
-              <span className="text-[11px] text-muted-foreground sm:text-xs">Happy Players</span>
-            </div>
-            <div className="h-8 w-px bg-border" />
-            <div className="flex flex-col items-center text-center sm:flex-row sm:gap-3">
-              <span className="text-lg font-semibold text-scene-foreground sm:text-xl">7</span>
-              <span className="text-[11px] text-muted-foreground sm:text-xs">Cities</span>
-            </div>
-            <div className="h-8 w-px bg-border" />
-            <div className="flex flex-col items-center text-center sm:flex-row sm:gap-3">
-              <span className="text-lg font-semibold text-scene-foreground sm:text-xl">4.9</span>
-              <span className="text-[11px] text-muted-foreground sm:text-xs">Player Rating</span>
-            </div>
+        {/* Bottom floating stats bar */}
+        <div className="absolute bottom-8 left-1/2 z-10 w-full max-w-3xl -translate-x-1/2 px-5">
+          <div className="glass-card flex items-center justify-between gap-2 px-5 py-3.5 sm:px-8">
+            {[
+              { v: "12K+", l: "Happy Players" },
+              { v: "7", l: "Cities" },
+              { v: "25K+", l: "Moments" },
+              { v: "4.9", l: "Rating" },
+            ].map((s, i) => (
+              <div key={s.l} className="flex flex-1 flex-col items-center text-center">
+                <span className="text-base font-bold text-scene-foreground sm:text-lg">{s.v}</span>
+                <span className="text-[10px] text-muted-foreground sm:text-[11px]">{s.l}</span>
+              </div>
+            ))}
           </div>
         </div>
-
-        <a
-          href="#features"
-          className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center font-mono text-[10px] tracking-[0.2em] text-primary/80"
-        >
-          SCROLL
-          <motion.span animate={{ y: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1.8 }}>
-            <ChevronDown className="h-4 w-4" />
-          </motion.span>
-        </a>
       </section>
 
       {/* ZONE B */}
       <section
-        className="cinematic-zone-b grain-overlay vignette relative"
+        className="cinematic-zone-b relative"
         style={{ "--zone-image-b": `url(${cityImage.url})` } as React.CSSProperties}
       >
+        <Bubbles />
         <div className="zone-blend-top" />
 
         <Features />
@@ -155,19 +197,19 @@ function Nav() {
     <header className="fixed inset-x-0 top-4 z-50 px-4">
       <nav className="glass-card mx-auto flex max-w-5xl items-center justify-between rounded-full px-5 py-2.5">
         <Logo />
-        <div className="hidden items-center gap-8 text-sm font-medium text-muted-foreground md:flex">
-          <a href="#features" className="transition-colors hover:text-foreground">Experience</a>
-          <a href="#world" className="transition-colors hover:text-foreground">World</a>
-          <a href="#cities" className="transition-colors hover:text-foreground">Cities</a>
-          <a href="#leaderboard" className="transition-colors hover:text-foreground">Leaderboard</a>
+        <div className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
+          <a href="#features" className="transition-colors hover:text-primary">Experience</a>
+          <a href="#world" className="transition-colors hover:text-primary">World</a>
+          <a href="#cities" className="transition-colors hover:text-primary">Cities</a>
+          <a href="#leaderboard" className="transition-colors hover:text-primary">Leaderboard</a>
         </div>
         <div className="flex items-center gap-2">
           <ThemeSwitch />
-          <Link to="/login" className="hidden rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:block">
+          <Link to="/login" className="hidden rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary sm:block">
             Login
           </Link>
           <Link to="/signup" className="glass-button !px-5 !py-2.5 text-sm">
-            Get Started <ArrowRight className="h-3.5 w-3.5" />
+            Explore Now <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       </nav>
@@ -177,9 +219,9 @@ function Nav() {
 
 function Header({ eyebrow, title }: { eyebrow: string; title: string }) {
   return (
-    <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-14">
+    <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12">
       <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-primary">{eyebrow}</p>
-      <h2 className="mt-3 text-3xl font-semibold tracking-tight text-scene-foreground sm:text-4xl lg:text-5xl">{title}</h2>
+      <h2 className="mt-3 text-3xl font-bold tracking-tight text-scene-foreground sm:text-4xl lg:text-5xl">{title}</h2>
     </motion.div>
   );
 }
@@ -193,7 +235,7 @@ const FEATURES = [
 
 function Features() {
   return (
-    <section id="features" className="relative z-10 mx-auto max-w-6xl px-5 py-28">
+    <section id="features" className="relative z-10 mx-auto max-w-6xl px-5 py-24">
       <Header eyebrow="What You Can Do" title="Everything. This is your life." />
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {FEATURES.map(({ I, t, d }, i) => (
@@ -203,12 +245,12 @@ function Features() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.08 }}
-            className="glass-card glow-hover p-7"
+            className="glass-card glow-hover p-6"
           >
-            <div className="mb-5 inline-flex rounded-2xl bg-primary/10 p-3 text-primary">
+            <div className="mb-4 inline-flex rounded-2xl bg-primary/15 p-3 text-primary">
               <I className="h-5 w-5" />
             </div>
-            <h3 className="text-xl font-semibold text-scene-foreground">{t}</h3>
+            <h3 className="text-lg font-bold text-scene-foreground">{t}</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{d}</p>
           </motion.div>
         ))}
@@ -219,29 +261,29 @@ function Features() {
 
 function WorldPreview() {
   return (
-    <section id="world" className="relative z-10 mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 lg:grid-cols-5">
-      <div className="glass-card relative h-80 overflow-hidden sm:h-[420px] lg:col-span-3">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10" />
+    <section id="world" className="relative z-10 mx-auto grid max-w-6xl items-center gap-10 px-5 py-20 lg:grid-cols-5">
+      <div className="glass-card relative h-80 overflow-hidden sm:h-[400px] lg:col-span-3">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-secondary/15" />
         <Suspense fallback={null}>
           <StreetScene />
         </Suspense>
       </div>
       <div className="lg:col-span-2">
-        <div className="glass-card p-8">
+        <div className="glass-card p-7">
           <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-primary">Step Into The World</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-scene-foreground">A living Nigeria. Every street. Every city.</h2>
+          <h2 className="mt-3 text-2xl font-bold tracking-tight text-scene-foreground sm:text-3xl">A living Nigeria. Every street. Every city.</h2>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
             From Ibadan to Lagos, Enugu to Abuja — explore a fully simulated Nigeria. Enter properties, meet live players, stake your claim.
           </p>
-          <ul className="mt-6 grid grid-cols-2 gap-3 text-sm">
+          <ul className="mt-5 grid grid-cols-2 gap-2.5 text-sm">
             {["7 cities + BS Island", "Real-time multiplayer", "Day/night cycle", "Dynamic weather"].map((b) => (
               <li key={b} className="flex items-center gap-2 text-muted-foreground">
-                <Check className="h-4 w-4 shrink-0 text-primary" />
+                <Check className="h-3.5 w-3.5 shrink-0 text-primary" />
                 {b}
               </li>
             ))}
           </ul>
-          <a href="#cities" className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-all hover:gap-3">
+          <a href="#cities" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-all hover:gap-3">
             Explore the Map <ArrowRight className="h-4 w-4" />
           </a>
         </div>
@@ -272,7 +314,7 @@ function Skyline({ seed }: { seed: number }) {
             y={90 - h}
             width={18}
             height={h}
-            className={i % 3 === 0 ? "fill-primary/60" : i % 3 === 1 ? "fill-secondary/40" : "fill-foreground/15"}
+            className={i % 3 === 0 ? "fill-primary/50" : i % 3 === 1 ? "fill-secondary/40" : "fill-foreground/15"}
           />
         );
       })}
@@ -284,14 +326,14 @@ function Cities() {
   const ref = useRef<HTMLDivElement>(null);
   const scroll = (dir: number) => ref.current?.scrollBy({ left: dir * 300, behavior: "smooth" });
   return (
-    <section id="cities" className="relative z-10 py-28">
+    <section id="cities" className="relative z-10 py-24">
       <div className="mx-auto flex max-w-6xl items-end justify-between px-5">
         <Header eyebrow="Your Nigeria" title="Seven cities. One empire." />
-        <div className="mb-14 hidden gap-2 sm:flex">
-          <button aria-label="Previous" onClick={() => scroll(-1)} className="glass rounded-full p-3 hover:text-primary">
+        <div className="mb-12 hidden gap-2 sm:flex">
+          <button aria-label="Previous" onClick={() => scroll(-1)} className="glass rounded-full p-2.5 hover:text-primary">
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <button aria-label="Next" onClick={() => scroll(1)} className="glass rounded-full p-3 hover:text-primary">
+          <button aria-label="Next" onClick={() => scroll(1)} className="glass rounded-full p-2.5 hover:text-primary">
             <ChevronRight className="h-5 w-5" />
           </button>
         </div>
@@ -301,16 +343,16 @@ function Cities() {
         className="no-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 lg:px-[max(1.25rem,calc((100vw-72rem)/2+1.25rem))]"
       >
         {CITIES.map((c, i) => (
-          <div key={c.n} className="glass-card glow-hover w-72 shrink-0 snap-start overflow-hidden">
-            <div className="relative h-40 bg-gradient-to-b from-secondary/10 to-primary/5">
+          <div key={c.n} className="glass-card glow-hover w-68 shrink-0 snap-start overflow-hidden sm:w-72">
+            <div className="relative h-36 bg-gradient-to-b from-primary/10 to-secondary/10">
               <Skyline seed={i + 1} />
-              <span className="glass absolute right-3 top-3 flex items-center gap-1 rounded-full px-3 py-1 font-mono text-[11px]">
+              <span className="glass absolute right-3 top-3 flex items-center gap-1 rounded-full px-2.5 py-1 font-mono text-[10px]">
                 {c.l > 1 && <Lock className="h-3 w-3" />} LVL {c.l}
               </span>
             </div>
-            <div className="p-6">
-              <h3 className="text-xl font-semibold text-scene-foreground">{c.n}</h3>
-              <p className="mt-1.5 text-sm text-muted-foreground">{c.d}</p>
+            <div className="p-5">
+              <h3 className="text-lg font-bold text-scene-foreground">{c.n}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{c.d}</p>
             </div>
           </div>
         ))}
@@ -327,7 +369,7 @@ const TOP = [
 
 function Leaderboard() {
   return (
-    <section id="leaderboard" className="relative z-10 mx-auto max-w-6xl px-5 py-28">
+    <section id="leaderboard" className="relative z-10 mx-auto max-w-6xl px-5 py-24">
       <Header eyebrow="Top Souls This Week" title="Who's running Nigeria?" />
       <div className="grid items-end gap-5 sm:grid-cols-3">
         {TOP.map((p, i) => (
@@ -336,19 +378,19 @@ function Leaderboard() {
             className={`animate-float ${p.r === 1 ? "order-first sm:order-none" : ""}`}
             style={{ animationDelay: `${i * 0.5}s` }}
           >
-            <div className={`glass-card p-7 text-center ${p.r === 1 ? "glow-primary sm:pb-12 sm:pt-10" : ""}`}>
-              <div className="relative mx-auto mb-5 flex h-18 w-18 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary font-display text-xl font-semibold text-primary-foreground">
+            <div className={`glass-card p-6 text-center ${p.r === 1 ? "glow-primary sm:pb-10 sm:pt-8" : ""}`}>
+              <div className="relative mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary font-display text-lg font-bold text-white">
                 {p.u.slice(0, 2).toUpperCase()}
-                <span className="absolute -bottom-1 -right-1 text-xl">{p.m}</span>
+                <span className="absolute -bottom-1 -right-1 text-lg">{p.m}</span>
               </div>
-              <p className="font-display text-lg font-semibold text-scene-foreground">{p.u}</p>
-              <p className="mt-1 font-display text-2xl font-semibold text-primary">{p.w}</p>
-              <div className="mt-4 flex justify-center gap-2 font-mono text-[11px] text-muted-foreground">
-                <span className="glass flex items-center gap-1 rounded-full px-2.5 py-1">
+              <p className="font-display text-base font-bold text-scene-foreground">{p.u}</p>
+              <p className="mt-1 font-display text-xl font-bold text-primary">{p.w}</p>
+              <div className="mt-3 flex justify-center gap-2 font-mono text-[10px] text-muted-foreground">
+                <span className="glass flex items-center gap-1 rounded-full px-2 py-0.5">
                   <MapPin className="h-3 w-3" />
                   {p.c}
                 </span>
-                <span className="glass rounded-full px-2.5 py-1">LVL {p.l}</span>
+                <span className="glass rounded-full px-2 py-0.5">LVL {p.l}</span>
               </div>
             </div>
           </div>
@@ -361,21 +403,21 @@ function Leaderboard() {
 function Community() {
   return (
     <section id="community" className="relative z-10 mx-auto max-w-6xl px-5 py-20">
-      <div className="glass-card relative overflow-hidden p-10 text-center sm:p-16">
-        <div className="pointer-events-none absolute -top-32 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-primary/15 blur-3xl" />
-        <h2 className="relative text-3xl font-semibold tracking-tight text-scene-foreground sm:text-4xl">Join the Blacklisted Souls</h2>
-        <p className="relative mx-auto mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground">
+      <div className="glass-card relative overflow-hidden p-9 text-center sm:p-14">
+        <div className="pointer-events-none absolute -top-28 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />
+        <h2 className="relative text-2xl font-bold tracking-tight text-scene-foreground sm:text-4xl">Join the Blacklisted Souls</h2>
+        <p className="relative mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
           Soul Life lives in our WhatsApp community. Trade, strategize, and build alliances with other Souls in real time.
         </p>
-        <div className="relative mt-8 flex flex-wrap justify-center gap-3">
-          <a href="#" className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-6 py-3 text-sm font-semibold text-brand-foreground transition-transform hover:-translate-y-0.5">
+        <div className="relative mt-7 flex flex-wrap justify-center gap-3">
+          <a href="#" className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-5 py-2.5 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5">
             <MessageCircle className="h-4 w-4" /> Join WhatsApp
           </a>
-          <a href="#" className="inline-flex items-center gap-2 rounded-full bg-discord px-6 py-3 text-sm font-semibold text-brand-foreground transition-transform hover:-translate-y-0.5">
+          <a href="#" className="inline-flex items-center gap-2 rounded-full bg-discord px-5 py-2.5 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5">
             <Users className="h-4 w-4" /> Join Discord
           </a>
         </div>
-        <p className="relative mt-6 font-mono text-xs text-primary">2,847 Souls already inside</p>
+        <p className="relative mt-5 font-mono text-xs text-primary">2,847 Souls already inside</p>
       </div>
     </section>
   );
@@ -387,12 +429,12 @@ function Footer({ onReplay }: { onReplay: () => void }) {
     { h: "Community", l: ["WhatsApp", "Discord", "Twitter/X", "Instagram"] },
   ];
   return (
-    <footer className="relative z-10 border-t border-border/40 bg-background/95 backdrop-blur-xl">
-      <div className="mx-auto grid max-w-6xl gap-12 px-5 py-16 sm:grid-cols-2 lg:grid-cols-4">
+    <footer className="relative z-10 border-t border-primary/20 bg-background/90 backdrop-blur-xl">
+      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <div className="flex items-center gap-2">
             <FlameMark />
-            <span className="font-display text-lg font-semibold">Soul Life</span>
+            <span className="font-display text-lg font-bold">Soul Life</span>
           </div>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
             Live your Soul Life. A grounded Nigerian life sim built by and for the Blacklisted Souls.
@@ -401,10 +443,10 @@ function Footer({ onReplay }: { onReplay: () => void }) {
         {cols.map((c) => (
           <div key={c.h}>
             <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-primary">{c.h}</p>
-            <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
+            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
               {c.l.map((x) => (
                 <li key={x}>
-                  <a href="#" className="transition-colors hover:text-foreground">{x}</a>
+                  <a href="#" className="transition-colors hover:text-primary">{x}</a>
                 </li>
               ))}
             </ul>
@@ -412,9 +454,9 @@ function Footer({ onReplay }: { onReplay: () => void }) {
         ))}
         <div>
           <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-primary">Legal</p>
-          <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
-            <li><a href="#" className="transition-colors hover:text-foreground">Terms</a></li>
-            <li><a href="#" className="transition-colors hover:text-foreground">Privacy</a></li>
+          <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+            <li><a href="#" className="transition-colors hover:text-primary">Terms</a></li>
+            <li><a href="#" className="transition-colors hover:text-primary">Privacy</a></li>
             <li>
               <button onClick={onReplay} className="mt-1 text-xs text-muted-foreground transition-colors hover:text-primary">
                 Replay Intro
@@ -423,7 +465,7 @@ function Footer({ onReplay }: { onReplay: () => void }) {
           </ul>
         </div>
       </div>
-      <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-2 border-t border-border/40 px-5 py-6 text-xs text-muted-foreground">
+      <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-2 border-t border-primary/15 px-5 py-5 text-xs text-muted-foreground">
         <span>© 2026 Soul Life. All rights reserved.</span>
         <span>Made in Nigeria 🇳🇬</span>
       </div>
