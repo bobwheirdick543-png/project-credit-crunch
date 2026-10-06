@@ -34,7 +34,8 @@ function VerifyEmail() {
   const verify = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!code || code.length < 6) {
-      return toast.error("Enter the 6-digit code from your email");
+      toast.error("Enter the 6-digit code from your email");
+      return;
     }
     setBusy(true);
     const { error } = await supabase.auth.verifyOtp({
@@ -43,7 +44,10 @@ function VerifyEmail() {
       type: "signup",
     });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Email verified");
     await navigate({ to: "/signup/profile" });
   };
@@ -53,7 +57,10 @@ function VerifyEmail() {
     setResending(true);
     const { error } = await supabase.auth.resend({ type: "signup", email });
     setResending(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Verification code resent");
   };
 

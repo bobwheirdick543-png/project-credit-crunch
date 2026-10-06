@@ -310,6 +310,8 @@
 }
 
 .hero-copy-scrim { text-shadow: 0 2px 24px color-mix(in oklab, var(--void) 72%, transparent); }
+.cinematic-zone-a .hero-copy-scrim h1 { color: oklch(0.99 0 0); }
+.cinematic-zone-a .hero-copy-scrim p { color: oklch(0.9 0.02 220); }
 
 @keyframes float-idle {
   0%, 100% { transform: translateY(0); }
