@@ -1,9 +1,102 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { LoaderCircle } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { AuthShell } from "@/components/soul/AuthShell";
 import { supabase } from "@/integrations/supabase/client";
-export const Route=createFileRoute("/signup/verify")({ssr:false,head:()=>({meta:[{title:"Verify email — Soul Life"},{name:"description",content:"Verify your email to activate Soul Life."},{property:"og:title",content:"Verify email — Soul Life"},{property:"og:description",content:"Secure your new Soul Life account."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),component:Verify});
-function Verify(){const navigate=useNavigate();const[code,setCode]=useState("");const[seconds,setSeconds]=useState(60);const email=sessionStorage.getItem("sl-signup-email")??"your email";useEffect(()=>{const id=setInterval(()=>setSeconds(s=>Math.max(0,s-1)),1000);return()=>clearInterval(id)},[]);const verify=async(e:React.FormEvent)=>{e.preventDefault();if(!/^\d{6}$/.test(code))return toast.error("Enter the 6-digit code");const{data}=await supabase.auth.getSession();if(data.session)await navigate({to:"/signup/profile"});else toast.message("Open the confirmation link sent to your email, then return here.")};const resend=async()=>{if(seconds>0)return;const{error}=await supabase.auth.resend({type:"signup",email});if(error)return toast.error(error.message);setSeconds(60);toast.success("Confirmation email resent")};return <AuthShell eyebrow="VERIFY YOUR EMAIL" title="One last security check." copy={`We sent a confirmation link and 6-digit code prompt to ${email}.`}><form onSubmit={verify} className="space-y-5"><Input inputMode="numeric" maxLength={6} className="glass-input h-16 text-center font-mono text-2xl tracking-[0.5em]" placeholder="000000" value={code} onChange={(e)=>setCode(e.target.value.replace(/\D/g,""))}/><Button className="glass-button h-12 w-full">Continue</Button><Button type="button" variant="ghost" className="w-full" disabled={seconds>0} onClick={resend}>{seconds>0?`Resend in ${seconds}s`:"Resend email"}</Button></form></AuthShell>}
+
+export const Route = createFileRoute("/signup/verify")({
+  ssr: false,
+  head: () => ({
+    meta: [
+      { title: "Verify email — Soul Life" },
+      { name: "description", content: "Confirm your email to continue creating your Soul." },
+    ],
+  }),
+  component: VerifyEmail,
+});
+
+function VerifyEmail() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem("sl-signup-email") || "";
+    setEmail(stored);
+    if (!stored) {
+      void navigate({ to: "/signup" });
+    }
+  }, [navigate]);
+
+  const verify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!code || code.length < 6) {
+      return toast.error("Enter the 6-digit code from your email");
+    }
+    setBusy(true);
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token: code,
+      type: "signup",
+    });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Email verified");
+    await navigate({ to: "/signup/profile" });
+  };
+
+  const resend = async () => {
+    if (!email) return;
+    setResending(true);
+    const { error } = await supabase.auth.resend({ type: "signup", email });
+    setResending(false);
+    if (error) return toast.error(error.message);
+    toast.success("Verification code resent");
+  };
+
+  return (
+    <AuthShell
+      eyebrow="VERIFY YOUR EMAIL"
+      title="Check your inbox."
+      copy={`We sent a 6-digit code to ${email || "your email"}. Enter it below to continue.`}
+    >
+      <form onSubmit={verify} className="space-y-5">
+        <div>
+          <input
+            type="text"
+            inputMode="numeric"
+            maxLength={6}
+            placeholder="000000"
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+            className="glass-input h-14 text-center text-2xl tracking-[0.4em] font-mono"
+          />
+        </div>
+
+        <button type="submit" className="glass-button h-12 w-full" disabled={busy}>
+          {busy && <LoaderCircle className="h-4 w-4 animate-spin" />}
+          Verify & Continue
+        </button>
+
+        <div className="text-center text-sm text-muted-foreground">
+          Didn't receive the code?{" "}
+          <button
+            type="button"
+            onClick={resend}
+            disabled={resending}
+            className="font-semibold text-primary hover:underline"
+          >
+            {resending ? "Sending..." : "Resend code"}
+          </button>
+        </div>
+
+        <p className="text-center text-sm text-muted-foreground">
+          Wrong email? <Link to="/signup" className="font-semibold text-primary">Go back</Link>
+        </p>
+      </form>
+    </AuthShell>
+  );
+}
