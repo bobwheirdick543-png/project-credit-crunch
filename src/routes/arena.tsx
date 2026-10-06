@@ -12,6 +12,15 @@ export const Route = createFileRoute("/arena")({
 
 const TABS = ["Steal", "Rob", "Kill", "Bounties", "Heists", "Blackmail"] as const;
 
+const DESCRIPTIONS: Record<string, string> = {
+  Steal: "Quietly take Habz from another Soul. Low risk, moderate reward.",
+  Rob: "Force a larger take. Higher risk of being caught.",
+  Kill: "Eliminate a rival. High risk, high reward, affects Soul Rating.",
+  Bounties: "Place or claim bounties on other players.",
+  Heists: "Team up for big coordinated jobs across cities.",
+  Blackmail: "Use information to extract payment from targets.",
+};
+
 function ArenaPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -27,6 +36,7 @@ function ArenaPage() {
       <BackButton />
       <main className="mx-auto max-w-6xl px-5 pt-28">
         <h1 className="text-3xl font-bold">Arena</h1>
+        <p className="mt-1 text-sm text-muted-foreground">The streets have rules. Choose your move carefully.</p>
 
         <div className="mt-6 flex flex-wrap gap-2">
           {TABS.map((t) => (
@@ -42,9 +52,22 @@ function ArenaPage() {
           ))}
         </div>
 
-        <div className="mt-8 glass-card p-8 text-center">
-          <p className="text-sm text-muted-foreground">Select a target to {tab.toLowerCase()}.</p>
-          <button className="glass-button mt-6">Find Targets</button>
+        <div className="mt-8 glass-card p-8">
+          <h2 className="text-xl font-bold">{tab}</h2>
+          <p className="mt-2 text-sm text-muted-foreground">{DESCRIPTIONS[tab]}</p>
+
+          <div className="mt-8 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-xl border border-border p-4">
+              <p className="text-xs text-muted-foreground">Success Chance</p>
+              <p className="mt-1 text-lg font-bold">—</p>
+            </div>
+            <div className="rounded-xl border border-border p-4">
+              <p className="text-xs text-muted-foreground">Potential Reward</p>
+              <p className="mt-1 text-lg font-bold text-primary">—</p>
+            </div>
+          </div>
+
+          <button className="glass-button mt-8 w-full sm:w-auto">Find Targets</button>
         </div>
       </main>
     </div>
