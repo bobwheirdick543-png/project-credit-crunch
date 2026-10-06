@@ -6,4 +6,4 @@
 - [x] Notifications panel and standalone page
 - [x] Game feature pages and working action flows
 - [x] Installable/offline app setup and metadata
-- [ ] Responsive, theme, runtime, and build verification
+- [x] Responsive, theme, runtime, and build verification
