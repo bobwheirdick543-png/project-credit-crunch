@@ -123,7 +123,6 @@
     color-mix(in oklab, var(--card) 90%, transparent) 0%, 
     color-mix(in oklab, var(--card) 70%, transparent) 100%);
   backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
   border: 1px solid color-mix(in oklab, var(--primary) 35%, transparent);
   border-radius: 1.75rem;
   box-shadow: 
@@ -259,7 +258,7 @@
   min-height: 100svh;
   background-image: var(--zone-image-a, none);
   background-size: cover;
-  background-position: center top;
+  background-position: center center;
   background-attachment: fixed;
   background-repeat: no-repeat;
 }
@@ -271,22 +270,16 @@
   background-position: center bottom;
   background-attachment: fixed;
   background-repeat: no-repeat;
-  margin-top: -120px;
-  padding-top: 120px;
+  margin-top: -200px;
+  padding-top: 200px;
 }
 
-/* Soft blue overlay so content stays readable */
 .cinematic-zone-a::before,
 .cinematic-zone-b::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    160deg,
-    color-mix(in oklab, var(--void) 55%, transparent) 0%,
-    color-mix(in oklab, var(--primary-deep) 25%, transparent) 50%,
-    color-mix(in oklab, var(--void) 60%, transparent) 100%
-  );
+  background: linear-gradient(180deg, color-mix(in oklab, var(--void) 32%, transparent), color-mix(in oklab, var(--void) 10%, transparent) 50%, color-mix(in oklab, var(--void) 68%, transparent));
   pointer-events: none;
   z-index: 0;
 }
@@ -294,16 +287,16 @@
 .zone-blend-top {
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 160px;
-  background: linear-gradient(to top, transparent 0%, color-mix(in oklab, var(--void) 80%, transparent) 70%, transparent 100%);
+  height: 200px;
+  background: linear-gradient(to top, transparent 0%, var(--void) 60%, transparent 100%);
   pointer-events: none;
   z-index: 1;
 }
 .zone-blend-bottom {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 160px;
-  background: linear-gradient(to bottom, transparent 0%, color-mix(in oklab, var(--void) 80%, transparent) 70%, transparent 100%);
+  height: 200px;
+  background: linear-gradient(to bottom, transparent 0%, var(--void) 60%, transparent 100%);
   pointer-events: none;
   z-index: 1;
 }
@@ -316,15 +309,7 @@
   100% { transform: translateY(-100vh) scale(1.2); opacity: 0; }
 }
 
-.bubble {
-  position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, color-mix(in oklab, var(--primary) 40%, transparent), transparent 70%);
-  border: 1px solid color-mix(in oklab, var(--primary) 25%, transparent);
-  pointer-events: none;
-  z-index: 1;
-  animation: bubble-rise linear infinite;
-}
+.hero-copy-scrim { text-shadow: 0 2px 24px color-mix(in oklab, var(--void) 72%, transparent); }
 
 @keyframes float-idle {
   0%, 100% { transform: translateY(0); }
@@ -355,12 +340,15 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-float, .bubble { animation: none; }
+  .animate-float { animation: none; }
 }
 @media (max-width: 767px) {
   .auth-scene, .aurora-bg, .cinematic-zone-a, .cinematic-zone-b {
     background-attachment: scroll;
   }
+  .cinematic-zone-a { background-position: 52% center; }
+  .cinematic-zone-a::before { background: linear-gradient(180deg, color-mix(in oklab, var(--void) 44%, transparent), color-mix(in oklab, var(--void) 18%, transparent) 48%, color-mix(in oklab, var(--void) 78%, transparent)); }
+  .cinematic-zone-b { background-position: 54% center; }
 }
 
 /* Light mode glass refinements */
@@ -394,7 +382,7 @@
   }
   h1, h2, h3 { 
     font-family: var(--font-display); 
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
     font-weight: 700;
   }
 }

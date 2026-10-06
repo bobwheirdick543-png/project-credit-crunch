@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import {
-  Zap, Building2, Users, Crown, Play, ChevronDown, Check, ChevronLeft, ChevronRight, Lock, MessageCircle, Monitor, Sun, Moon, ArrowRight, MapPin, Leaf, Shield, Gem,
+  Zap, Building2, Users, Crown, ChevronDown, Check, ChevronLeft, ChevronRight, Lock, MessageCircle, Monitor, Sun, Moon, ArrowRight, MapPin,
 } from "lucide-react";
 import { Intro } from "@/components/soul/Intro";
 import { Logo, FlameMark } from "@/components/soul/Logo";
@@ -30,34 +30,6 @@ export const Route = createFileRoute("/")({
 
 const INTRO_KEY = "sl-intro-seen";
 
-function Bubbles() {
-  const bubbles = Array.from({ length: 14 }).map((_, i) => ({
-    id: i,
-    size: 6 + Math.random() * 18,
-    left: Math.random() * 100,
-    delay: Math.random() * 12,
-    duration: 10 + Math.random() * 14,
-  }));
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      {bubbles.map((b) => (
-        <div
-          key={b.id}
-          className="bubble"
-          style={{
-            width: b.size,
-            height: b.size,
-            left: `${b.left}%`,
-            bottom: -20,
-            animationDelay: `${b.delay}s`,
-            animationDuration: `${b.duration}s`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
 function Home() {
   const [intro, setIntro] = useState(() => {
     const t = Number(localStorage.getItem(INTRO_KEY) || 0);
@@ -71,79 +43,56 @@ function Home() {
       <AnimatePresence>{intro && <Intro onDone={done} />}</AnimatePresence>
       <Nav />
 
-      {/* HERO - AquaLife style */}
       <section
-        className="cinematic-zone-a relative flex min-h-[100svh] items-center overflow-hidden pb-28 pt-28"
+        className="cinematic-zone-a relative flex min-h-[100svh] items-center overflow-hidden pb-32 pt-32 sm:min-h-[110svh]"
         style={{ "--zone-image-a": `url(${sunset.url})` } as React.CSSProperties}
       >
-        <Bubbles />
         <div className="zone-blend-bottom" />
 
-        <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-10 px-5 lg:grid-cols-2">
-          {/* Left glass panel */}
+        <div className="relative z-10 mx-auto w-full max-w-6xl px-5">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="max-w-3xl"
           >
-            <div className="glass-card p-7 sm:p-9">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                Dive Into a Better World
-              </div>
-
-              <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-scene-foreground sm:text-5xl lg:text-6xl">
-                Discover.<br />
-                Experience.<br />
-                <span className="text-hero-gradient">Protect.</span>
-              </h1>
-
-              <p className="mt-5 max-w-md text-sm leading-relaxed text-scene-muted sm:text-base">
-                Step into the wonders of Nigeria and create memories that last a lifetime. Build your empire from the streets up.
+            <div className="hero-copy-scrim py-6">
+              <p className="mb-6 flex items-center gap-3 font-mono text-xs tracking-[0.28em] text-primary sm:text-sm">
+                <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_14px_var(--primary)]" /> ELEVATE YOUR LIFE
               </p>
 
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                <Link to="/signup" className="glass-button">
-                  Dive In <ArrowRight className="h-4 w-4" />
-                </Link>
-                <a href="#world" className="glass-button-ghost">
-                  <Play className="h-4 w-4" /> Watch Story
-                </a>
-              </div>
+              <h1 className="text-5xl font-bold leading-[1.04] text-scene-foreground sm:text-7xl lg:text-8xl">
+                Live Your<br />
+                <span className="text-hero-gradient">Soul Life</span><br />
+                in Nigeria
+              </h1>
 
-              {/* Feature pills */}
-              <div className="mt-8 grid grid-cols-3 gap-3">
-                {[
-                  { I: Leaf, t: "Eco Friendly", s: "Sustainable Play" },
-                  { I: Gem, t: "Premium", s: "World Class" },
-                  { I: Shield, t: "Safe & Secure", s: "Trusted" },
-                ].map(({ I, t, s }) => (
-                  <div key={t} className="rounded-2xl border border-primary/20 bg-primary/5 p-3 text-center">
-                    <I className="mx-auto mb-1.5 h-4 w-4 text-primary" />
-                    <p className="text-[11px] font-semibold text-scene-foreground">{t}</p>
-                    <p className="text-[10px] text-muted-foreground">{s}</p>
-                  </div>
-                ))}
+              <p className="mt-7 max-w-2xl text-base leading-relaxed text-scene-muted sm:text-xl">
+                From the streets to everything. Build your empire across Nigeria with premium experiences that last a lifetime.
+              </p>
+
+              <div className="mt-9 flex flex-wrap items-center gap-3">
+                <Link to="/signup" className="glass-button min-h-14 px-8 text-base">
+                  Enter Soul Empire <ArrowRight className="h-5 w-5" />
+                </Link>
+                <a href="#features" className="glass-button-ghost min-h-14 px-8 text-scene-foreground">
+                  Explore the world <ChevronDown className="h-5 w-5" />
+                </a>
               </div>
             </div>
           </motion.div>
-
-          {/* Right side - visual space kept open for background */}
-          <div className="hidden lg:block" />
         </div>
 
-        {/* Bottom floating stats bar */}
-        <div className="absolute bottom-8 left-1/2 z-10 w-full max-w-3xl -translate-x-1/2 px-5">
-          <div className="glass-card flex items-center justify-between gap-2 px-5 py-3.5 sm:px-8">
+        <div className="absolute bottom-10 left-1/2 z-10 w-full max-w-3xl -translate-x-1/2 px-5">
+          <div className="glass-card grid grid-cols-3 items-center px-4 py-5 sm:px-8">
             {[
               { v: "12K+", l: "Happy Players" },
               { v: "7", l: "Cities" },
-              { v: "25K+", l: "Moments" },
-              { v: "4.9", l: "Rating" },
+              { v: "4.9", l: "Player Rating" },
             ].map((s, i) => (
-              <div key={s.l} className="flex flex-1 flex-col items-center text-center">
-                <span className="text-base font-bold text-scene-foreground sm:text-lg">{s.v}</span>
-                <span className="text-[10px] text-muted-foreground sm:text-[11px]">{s.l}</span>
+              <div key={s.l} className={`flex min-w-0 flex-col items-center px-2 text-center ${i > 0 ? "border-l border-primary/25" : ""}`}>
+                <span className="text-2xl font-bold text-scene-foreground sm:text-3xl">{s.v}</span>
+                <span className="mt-1 text-[10px] text-scene-muted sm:text-xs">{s.l}</span>
               </div>
             ))}
           </div>
@@ -155,7 +104,6 @@ function Home() {
         className="cinematic-zone-b relative"
         style={{ "--zone-image-b": `url(${cityImage.url})` } as React.CSSProperties}
       >
-        <Bubbles />
         <div className="zone-blend-top" />
 
         <Features />
@@ -208,8 +156,8 @@ function Nav() {
           <Link to="/login" className="hidden rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary sm:block">
             Login
           </Link>
-          <Link to="/signup" className="glass-button !px-5 !py-2.5 text-sm">
-            Explore Now <ArrowRight className="h-3.5 w-3.5" />
+          <Link to="/signup" className="glass-button px-5 py-2.5 text-sm">
+            Get Started <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       </nav>
@@ -283,9 +231,9 @@ function WorldPreview() {
               </li>
             ))}
           </ul>
-          <a href="#cities" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-all hover:gap-3">
+          <Link to="/map" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-all hover:gap-3">
             Explore the Map <ArrowRight className="h-4 w-4" />
-          </a>
+          </Link>
         </div>
       </div>
     </section>
