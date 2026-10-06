@@ -1,17 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useRef, useState } from "react";
 import {
   Zap, Building2, Users, Crown, ChevronDown, Check, ChevronLeft, ChevronRight, Lock, MessageCircle, Monitor, Sun, Moon, ArrowRight, MapPin,
 } from "lucide-react";
 import { Intro } from "@/components/soul/Intro";
 import { Logo, FlameMark } from "@/components/soul/Logo";
 import { useTheme, type ThemePref } from "@/lib/theme";
-import sunset from "@/assets/soul-life-sunset.jpg.asset.json";
-import cityImage from "@/assets/soul-life-city.jpg.asset.json";
 import { Link } from "@tanstack/react-router";
 
 const StreetScene = lazy(() => import("@/components/soul/StreetScene"));
+
+// Public folder images (works on both Lovable and Vercel)
+const SUNSET_IMG = "/IMG_7493.jpeg"; // car + palms + sunset (Zone A)
+const CITY_IMG = "/IMG_7492.jpeg";   // ferris wheel + city reflection (Zone B)
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -43,9 +45,10 @@ function Home() {
       <AnimatePresence>{intro && <Intro onDone={done} />}</AnimatePresence>
       <Nav />
 
+      {/* ZONE A - Sunset / Car + Palms */}
       <section
         className="cinematic-zone-a relative flex min-h-[100svh] items-center overflow-hidden pb-32 pt-32 sm:min-h-[110svh]"
-        style={{ "--zone-image-a": `url(${sunset.url})` } as React.CSSProperties}
+        style={{ "--zone-image-a": `url(${SUNSET_IMG})` } as React.CSSProperties}
       >
         <div className="zone-blend-bottom" />
 
@@ -99,10 +102,10 @@ function Home() {
         </div>
       </section>
 
-      {/* ZONE B */}
+      {/* ZONE B - City / Ferris wheel */}
       <section
         className="cinematic-zone-b relative"
-        style={{ "--zone-image-b": `url(${cityImage.url})` } as React.CSSProperties}
+        style={{ "--zone-image-b": `url(${CITY_IMG})` } as React.CSSProperties}
       >
         <div className="zone-blend-top" />
 
