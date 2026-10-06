@@ -16,17 +16,17 @@ export function AuthShell({ eyebrow, title, copy, children }: { eyebrow: string;
         } as React.CSSProperties
       }
     >
-      {/* Zone A top half */}
+      {/* City image — top, full-width horizontal composition */}
       <div
-        className="cinematic-zone-a grain-overlay vignette absolute inset-x-0 top-0 h-[60vh]"
+        className="cinematic-zone-a grain-overlay vignette absolute inset-x-0 top-0 h-[48vh]"
         style={{ backgroundImage: "var(--zone-image-a)" }}
       >
         <div className="zone-blend-bottom" />
       </div>
 
-      {/* Zone B bottom half */}
+      {/* Sunset image — lower section */}
       <div
-        className="cinematic-zone-b grain-overlay vignette absolute inset-x-0 bottom-0 h-[55vh]"
+        className="cinematic-zone-b grain-overlay vignette absolute inset-x-0 bottom-0 h-[52vh]"
         style={{ backgroundImage: "var(--zone-image-b)", marginTop: 0, paddingTop: 0 }}
       >
         <div className="zone-blend-top" />
@@ -40,13 +40,13 @@ export function AuthShell({ eyebrow, title, copy, children }: { eyebrow: string;
         <ThemeControl />
       </header>
 
-      <div className="relative z-10 mx-auto grid min-h-svh max-w-6xl items-center gap-10 px-5 pb-10 pt-28 lg:grid-cols-[1fr_28rem]">
+      <div className="relative z-10 mx-auto grid min-h-svh max-w-6xl items-center gap-6 px-5 pb-6 pt-24 lg:grid-cols-[1fr_28rem]">
         <div className="max-w-xl text-scene-foreground">
           <p className="font-mono text-xs tracking-[0.25em] text-primary">{eyebrow}</p>
           <h1 className="mt-4 text-5xl font-bold leading-none text-scene-foreground sm:text-7xl">{title}</h1>
           <p className="mt-5 max-w-md text-lg text-scene-muted">{copy}</p>
         </div>
-        <section className="glass-card p-6 sm:p-8">{children}</section>
+        <section className="glass-card p-5 sm:p-6">{children}</section>
       </div>
     </main>
   );
