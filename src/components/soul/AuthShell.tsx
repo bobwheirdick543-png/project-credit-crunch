@@ -11,8 +11,8 @@ export function AuthShell({ eyebrow, title, copy, children }: { eyebrow: string;
       className="relative min-h-svh overflow-hidden"
       style={
         {
-          "--zone-image-a": `url(${sunset.url})`,
-          "--zone-image-b": `url(${city.url})`,
+          "--zone-image-a": `url(${city.url})`,
+          "--zone-image-b": `url(${sunset.url})`,
         } as React.CSSProperties
       }
     >
