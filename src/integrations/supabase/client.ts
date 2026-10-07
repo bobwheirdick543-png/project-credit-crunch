@@ -29,10 +29,11 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
 
 
 function createSupabaseClient() {
-  // Use import.meta.env for client-side (Vite build-time replacement)
-  // Fall back to process.env for SSR (server-side rendering)
-  const SUPABASE_URL = import.meta.env['VITE_SUPABASE_URL'] || process.env['SUPABASE_URL'];
-  const SUPABASE_PUBLISHABLE_KEY = import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY'] || process.env['SUPABASE_PUBLISHABLE_KEY'];
+  // Soul Life authentication is intentionally pinned to the user's personal
+  // Supabase project. Do not let a stale Vercel/Lovable environment variable
+  // silently route signup or sign-in to another Supabase project.
+  const SUPABASE_URL = 'https://manouowozdnlfbrxaefk.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_78QnGEpx8b110opYROLM1g_PNfqahOE';
 
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     const missing = [
