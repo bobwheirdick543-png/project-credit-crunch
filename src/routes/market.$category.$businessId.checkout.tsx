@@ -7,6 +7,7 @@ import { useBank } from "@/lib/BankContext";
 import { getBusinessById } from "@/data/district";
 import { formatNairaFull } from "@/lib/currency";
 import { toast } from "sonner";
+import { CreditCard, Building2 } from "lucide-react";
 
 export const Route = createFileRoute("/market/$category/$businessId/checkout")({
   ssr: false,
@@ -22,6 +23,8 @@ function CheckoutPage() {
   const { balance, deduct } = useBank();
   const navigate = useNavigate();
   const [payMode, setPayMode] = useState<"self" | "everyone">("self");
+  const [payMethod, setPayMethod] = useState<"balance" | "card">("balance");
+  const [cardBrand, setCardBrand] = useState("OPay");
   const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
@@ -36,7 +39,11 @@ function CheckoutPage() {
 
   const business = getBusinessById(businessId);
   if (!business) {
-    return <div className="flex min-h-screen items-center justify-center">Business not found</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center aurora-bg">
+        <p className="text-muted-foreground">Business not found</p>
+      </div>
+    );
   }
 
   const subtotal = cart.reduce((s, c) => s + c.price * c.qty, 0);
@@ -55,12 +62,12 @@ function CheckoutPage() {
 
   const pay = () => {
     if (!canPay) {
-      toast.error(`Not enough Naira. You need ${formatNairaFull(total - balance)} more.`);
+      toast.error(`Insufficient funds. You need ${formatNairaFull(total - balance)} more.`);
       return;
     }
     const ok = deduct(total, business.name);
     if (!ok) {
-      toast.error("Payment failed");
+      toast.error("Payment failed — insufficient funds");
       return;
     }
     sessionStorage.setItem(
@@ -70,6 +77,8 @@ function CheckoutPage() {
         category,
         cart,
         payMode,
+        payMethod,
+        cardBrand: payMethod === "card" ? cardBrand : null,
         subtotal,
         vat,
         service,
@@ -118,28 +127,22 @@ function CheckoutPage() {
               <span>Service ({(serviceRate * 100).toFixed(0)}%)</span>
               <span>{formatNairaFull(service)}</span>
             </div>
+            <div className="flex justify-between pt-2 text-base font-bold">
+              <span>Total</span>
+              <span className="text-primary">{formatNairaFull(total)}</span>
+            </div>
           </div>
         </div>
 
+        {/* Who pays */}
         <div className="mt-4 glass-card space-y-3 p-5">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Who is paying?</p>
           <label className="flex cursor-pointer items-center gap-3">
-            <input
-              type="radio"
-              name="payMode"
-              checked={payMode === "self"}
-              onChange={() => setPayMode("self")}
-              className="accent-primary"
-            />
+            <input type="radio" name="payMode" checked={payMode === "self"} onChange={() => setPayMode("self")} className="accent-primary" />
             <span className="text-sm font-medium">Pay for Myself</span>
           </label>
           <label className="flex cursor-pointer items-center gap-3">
-            <input
-              type="radio"
-              name="payMode"
-              checked={payMode === "everyone"}
-              onChange={() => setPayMode("everyone")}
-              className="accent-primary"
-            />
+            <input type="radio" name="payMode" checked={payMode === "everyone"} onChange={() => setPayMode("everyone")} className="accent-primary" />
             <div>
               <span className="text-sm font-medium">Pay for Everyone</span>
               <p className="text-xs text-muted-foreground">
@@ -147,6 +150,40 @@ function CheckoutPage() {
               </p>
             </div>
           </label>
+        </div>
+
+        {/* Payment method */}
+        <div className="mt-4 glass-card space-y-3 p-5">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Payment method</p>
+          <label className="flex cursor-pointer items-center gap-3">
+            <input type="radio" name="payMethod" checked={payMethod === "balance"} onChange={() => setPayMethod("balance")} className="accent-primary" />
+            <Building2 className="h-4 w-4 text-primary" />
+            <div>
+              <span className="text-sm font-medium">Soul Bank Transfer</span>
+              <p className="text-xs text-muted-foreground">Debit from your balance ({formatNairaFull(balance)})</p>
+            </div>
+          </label>
+          <label className="flex cursor-pointer items-center gap-3">
+            <input type="radio" name="payMethod" checked={payMethod === "card"} onChange={() => setPayMethod("card")} className="accent-primary" />
+            <CreditCard className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium">Bank Card (in-game)</span>
+          </label>
+          {payMethod === "card" && (
+            <div className="ml-7 flex flex-wrap gap-2">
+              {["OPay", "Kuda", "PalmPay", "GTBank", "Zenith"].map((b) => (
+                <button
+                  key={b}
+                  type="button"
+                  onClick={() => setCardBrand(b)}
+                  className={`glass-pill px-3 py-1 text-xs ${
+                    cardBrand === b ? "border-primary bg-primary/15 text-primary" : ""
+                  }`}
+                >
+                  {b}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="mt-4 flex items-center justify-between text-sm">
@@ -159,12 +196,14 @@ function CheckoutPage() {
           disabled={!canPay || cart.length === 0}
           className="glass-button mt-6 w-full"
         >
-          Pay {formatNairaFull(total)}
+          {payMethod === "card"
+            ? `Pay ${formatNairaFull(total)} with ${cardBrand}`
+            : `Transfer ${formatNairaFull(total)}`}
         </button>
 
         {!canPay && cart.length > 0 && (
           <p className="mt-2 text-center text-xs text-destructive">
-            Not enough Naira. You need {formatNairaFull(total - balance)} more.
+            Insufficient funds. You need {formatNairaFull(total - balance)} more.
           </p>
         )}
       </main>
