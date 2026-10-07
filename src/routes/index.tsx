@@ -329,7 +329,7 @@ function Leaderboard() {
             className={`animate-float ${p.r === 1 ? "order-first sm:order-none" : ""}`}
             style={{ animationDelay: `${i * 0.5}s` }}
           >
-            <div className={`glass-card p-6 text-center ${p.r === 1 ? "glow-primary sm:pb-10 sm:pt-8" : ""`}>
+            <div className={"glass-card p-6 text-center " + (p.r === 1 ? "glow-primary sm:pb-10 sm:pt-8" : "")}>
               <div className="relative mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary font-display text-lg font-bold text-white">
                 {p.u.slice(0, 2).toUpperCase()}
                 <span className="absolute -bottom-1 -right-1 text-lg">{p.m}</span>
