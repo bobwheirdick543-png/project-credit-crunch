@@ -1,17 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import {
-  Building2, Flame, Map, Shield, ShoppingBag, Sparkles, Users, Wallet, MapPin, Zap,
+  Building2, Flame, Map, Shield, ShoppingBag, Sparkles, Wallet, MapPin, Zap,
 } from "lucide-react";
 import { AppNav } from "@/components/soul/AppNav";
 import { useAuth } from "@/lib/auth";
+import { useBank } from "@/lib/BankContext";
+import { formatNaira } from "@/lib/currency";
 
 export const Route = createFileRoute("/dashboard")({
   ssr: false,
   head: () => ({
     meta: [
       { title: "Dashboard — Soul Life" },
-      { name: "description", content: "Manage your Soul Life empire, Habz and progress." },
+      { name: "description", content: "Manage your Soul Life empire, Naira and progress." },
     ],
   }),
   component: Dashboard,
@@ -19,6 +21,7 @@ export const Route = createFileRoute("/dashboard")({
 
 function Dashboard() {
   const { profile, user, loading } = useAuth();
+  const { balance } = useBank();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,7 +43,6 @@ function Dashboard() {
       <AppNav />
 
       <main className="mx-auto max-w-6xl px-5 pt-28">
-        {/* Welcome header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
             Welcome back, {profile?.username ?? "Soul"}
@@ -54,17 +56,15 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Stats grid */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <StatCard label="Wallet" value={`ₕ${(profile?.habz ?? 5000).toLocaleString()}`} note="Ready to spend" Icon={Wallet} />
-          <StatCard label="Vault" value={`ₕ${(profile?.vault ?? 0).toLocaleString()}`} note="Protected savings" Icon={Shield} />
-          <StatCard label="Loan" value="ₕ0" note="No active loans" Icon={Building2} />
+          <StatCard label="Bank Balance" value={formatNaira(balance)} note="Ready to spend" Icon={Wallet} />
+          <StatCard label="Vault" value={formatNaira(profile?.vault ?? 0)} note="Protected savings" Icon={Shield} />
+          <StatCard label="Loan" value="₦ 0" note="No active loans" Icon={Building2} />
           <StatCard label="Streak" value="🔥 0 days" note="Keep showing up" Icon={Flame} />
           <StatCard label="Level" value={`${profile?.level ?? 1} · ${profile?.xp ?? 0} XP`} note="Keep grinding" Icon={Zap} />
           <StatCard label="Soul Rating" value={`⭐ ${profile?.soul_rating ?? 0}`} note="Build reputation" Icon={Sparkles} />
         </div>
 
-        {/* Active Boosts */}
         <section className="mt-10">
           <h2 className="mb-4 text-xl font-bold">Active Boosts</h2>
           <div className="glass-card p-8 text-center">
@@ -72,7 +72,6 @@ function Dashboard() {
           </div>
         </section>
 
-        {/* Recent Activity */}
         <section className="mt-8">
           <h2 className="mb-4 text-xl font-bold">Recent Activity</h2>
           <div className="glass-card p-6">
@@ -83,13 +82,12 @@ function Dashboard() {
               </li>
               <li className="flex justify-between">
                 <span>Welcome bonus received</span>
-                <span className="text-primary font-semibold">+ₕ5,000</span>
+                <span className="font-semibold text-primary">+₦ 5,000</span>
               </li>
             </ul>
           </div>
         </section>
 
-        {/* Quick Actions */}
         <section className="mt-10">
           <h2 className="mb-4 text-xl font-bold">Quick Actions</h2>
           <div className="flex flex-wrap gap-3">
@@ -99,11 +97,11 @@ function Dashboard() {
             <Link to="/wallet" className="glass-button-ghost">
               <Wallet className="h-4 w-4" /> Open Wallet
             </Link>
+            <Link to="/market" className="glass-button-ghost">
+              <ShoppingBag className="h-4 w-4" /> The District
+            </Link>
             <Link to="/profile" className="glass-button-ghost">
               View Profile
-            </Link>
-            <Link to="/market" className="glass-button-ghost">
-              <ShoppingBag className="h-4 w-4" /> Market
             </Link>
           </div>
         </section>
