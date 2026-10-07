@@ -1,12 +1,14 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
-  Bell, ChevronDown, LogOut, Menu, X, LayoutDashboard, Map, Wallet, ShoppingBag,
-  Heart, Shield, Swords, PawPrint, Layers, Trophy, User, Settings,
+  Bell, LogOut, Menu, X, LayoutDashboard, Map, Wallet, ShoppingBag,
+  Heart, Shield, Swords, PawPrint, Layers, Trophy, User, Settings, Building2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { useBank } from "@/lib/BankContext";
+import { formatNaira } from "@/lib/currency";
 import { FlameMark } from "./Logo";
 import { ThemeControl } from "./ThemeControl";
 
@@ -14,7 +16,7 @@ const links = [
   { to: "/dashboard", label: "Dashboard", Icon: LayoutDashboard },
   { to: "/map", label: "World Map", Icon: Map },
   { to: "/wallet", label: "Wallet", Icon: Wallet },
-  { to: "/market", label: "Market", Icon: ShoppingBag },
+  { to: "/market", label: "The District", Icon: ShoppingBag },
   { to: "/social", label: "Social", Icon: Heart },
   { to: "/gangs", label: "Gangs", Icon: Shield },
   { to: "/arena", label: "Arena", Icon: Swords },
@@ -28,10 +30,12 @@ const links = [
 export function AppNav() {
   const [open, setOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [bankOpen, setBankOpen] = useState(false);
   const [unread, setUnread] = useState(0);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  const { balance, transactions } = useBank();
 
   useEffect(() => {
     if (!user) return;
@@ -81,9 +85,14 @@ export function AppNav() {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="glass-pill px-3 py-1.5 font-mono text-xs">
-              ₕ{(profile?.habz ?? 5000).toLocaleString()}
-            </span>
+            {/* Bank balance pill */}
+            <button
+              onClick={() => setBankOpen(true)}
+              className="glass-pill flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs transition-colors hover:border-primary/40"
+            >
+              <Building2 className="h-3.5 w-3.5 text-primary" />
+              {formatNaira(balance)}
+            </button>
 
             <Button asChild size="icon" variant="ghost" className="relative rounded-full">
               <Link to="/notifications" aria-label="Notifications">
@@ -124,6 +133,58 @@ export function AppNav() {
         )}
       </header>
 
+      {/* Bank Drawer */}
+      {bankOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={() => setBankOpen(false)}>
+          <aside
+            className="glass-card absolute right-0 top-0 h-full w-[min(100vw,300px)] rounded-none border-y-0 border-r-0 p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <span className="font-display text-lg font-bold">Soul Bank</span>
+              <Button size="icon" variant="ghost" onClick={() => setBankOpen(false)}>
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+
+            <p className="mt-6 text-center font-display text-3xl font-bold text-primary">
+              {formatNaira(balance)}
+            </p>
+            <p className="mt-1 text-center text-xs text-muted-foreground">
+              Soul Bank · Account ····{(user?.id ?? "0000").slice(-4)}
+            </p>
+
+            <div className="mt-6 grid grid-cols-2 gap-2">
+              {["Deposit", "Withdraw", "Transfer", "History"].map((a) => (
+                <button key={a} className="glass-button-ghost !py-2 text-xs">
+                  {a}
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-6">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Recent
+              </p>
+              <div className="space-y-2">
+                {transactions.slice(0, 5).length === 0 && (
+                  <p className="text-xs text-muted-foreground">No transactions yet</p>
+                )}
+                {transactions.slice(0, 5).map((tx) => (
+                  <div key={tx.id} className="flex items-center justify-between text-xs">
+                    <span className="truncate text-muted-foreground">{tx.label}</span>
+                    <span className={tx.type === "purchase" || tx.type === "withdrawal" ? "text-destructive" : "text-primary"}>
+                      {tx.type === "purchase" || tx.type === "withdrawal" ? "-" : "+"}
+                      {formatNaira(tx.amount)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </aside>
+        </div>
+      )}
+
       {/* Hamburger Drawer */}
       {open && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)}>
@@ -133,7 +194,7 @@ export function AppNav() {
           >
             <div className="flex items-center justify-between">
               <span className="font-display text-xl font-bold">SOUL EMPIRE</span>
-              <Button size="icon" variant="ghost" onClick={() => setOpen(false)} aria-label="Close navigation">
+              <Button size="icon" variant="ghost" onClick={() => setOpen(false)}>
                 <X className="h-5 w-5" />
               </Button>
             </div>
@@ -145,7 +206,7 @@ export function AppNav() {
                   to={to}
                   onClick={() => setOpen(false)}
                   className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
-                    pathname === to
+                    pathname.startsWith(to)
                       ? "bg-primary/15 text-primary"
                       : "text-muted-foreground hover:bg-accent hover:text-foreground"
                   }`}
