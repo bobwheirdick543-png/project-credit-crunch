@@ -4,7 +4,7 @@ import { AppNav } from "@/components/soul/AppNav";
 import { BackButton } from "@/components/soul/BackButton";
 import { useAuth } from "@/lib/auth";
 import { useBank } from "@/lib/BankContext";
-import { abujaBusinesses } from "@/data/district/abuja";
+import { getBusinessById } from "@/data/district";
 import { formatNairaFull } from "@/lib/currency";
 import { toast } from "sonner";
 
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/market/$category/$businessId/checkout")({
   component: CheckoutPage,
 });
 
-type CartItem = { id: string; name: string; price: number; qty: number };
+type CartItem = { id: string; name: string; price: number; qty: number; size?: string };
 
 function CheckoutPage() {
   const { category, businessId } = Route.useParams();
@@ -34,7 +34,7 @@ function CheckoutPage() {
     } catch {}
   }, [loading, user, navigate, businessId]);
 
-  const business = abujaBusinesses.find((b) => b.id === businessId);
+  const business = getBusinessById(businessId);
   if (!business) {
     return <div className="flex min-h-screen items-center justify-center">Business not found</div>;
   }
@@ -96,7 +96,6 @@ function CheckoutPage() {
           {business.name} · {business.area}
         </p>
 
-        {/* Itemized bill */}
         <div className="mt-6 glass-card p-5">
           {cart.map((c) => (
             <div key={c.id} className="flex justify-between border-b border-border/40 py-2 text-sm">
@@ -122,7 +121,6 @@ function CheckoutPage() {
           </div>
         </div>
 
-        {/* Pay mode */}
         <div className="mt-4 glass-card space-y-3 p-5">
           <label className="flex cursor-pointer items-center gap-3">
             <input
