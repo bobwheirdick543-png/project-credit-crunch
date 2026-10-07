@@ -11,9 +11,9 @@ import { Link } from "@tanstack/react-router";
 
 const StreetScene = lazy(() => import("@/components/soul/StreetScene"));
 
-// Public folder images (works on both Lovable and Vercel)
-const SUNSET_IMG = "/IMG_7493.jpeg"; // car + palms + sunset (Zone A)
-const CITY_IMG = "/IMG_7492.jpeg";   // ferris wheel + city reflection (Zone B)
+// Public folder images — city on TOP, sunset on lower section
+const CITY_IMG = "/IMG_7492.jpeg";   // Ferris wheel + city (Zone A — top)
+const SUNSET_IMG = "/IMG_7493.jpeg"; // Car + palms (Zone B — lower)
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -45,10 +45,10 @@ function Home() {
       <AnimatePresence>{intro && <Intro onDone={done} />}</AnimatePresence>
       <Nav />
 
-      {/* ZONE A - Sunset / Car + Palms */}
+      {/* ZONE A - City image on top */}
       <section
         className="cinematic-zone-a relative flex min-h-[100svh] items-center overflow-hidden pb-32 pt-32 sm:min-h-[110svh]"
-        style={{ "--zone-image-a": `url(${SUNSET_IMG})` } as React.CSSProperties}
+        style={{ "--zone-image-a": `url(${CITY_IMG})` } as React.CSSProperties}
       >
         <div className="zone-blend-bottom" />
 
@@ -102,10 +102,10 @@ function Home() {
         </div>
       </section>
 
-      {/* ZONE B - City / Ferris wheel */}
+      {/* ZONE B - Sunset image lower */}
       <section
         className="cinematic-zone-b relative"
-        style={{ "--zone-image-b": `url(${CITY_IMG})` } as React.CSSProperties}
+        style={{ "--zone-image-b": `url(${SUNSET_IMG})` } as React.CSSProperties}
       >
         <div className="zone-blend-top" />
 
@@ -329,7 +329,7 @@ function Leaderboard() {
             className={`animate-float ${p.r === 1 ? "order-first sm:order-none" : ""}`}
             style={{ animationDelay: `${i * 0.5}s` }}
           >
-            <div className={`glass-card p-6 text-center ${p.r === 1 ? "glow-primary sm:pb-10 sm:pt-8" : ""}`}>
+            <div className={`glass-card p-6 text-center ${p.r === 1 ? "glow-primary sm:pb-10 sm:pt-8" : ""`}>
               <div className="relative mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary font-display text-lg font-bold text-white">
                 {p.u.slice(0, 2).toUpperCase()}
                 <span className="absolute -bottom-1 -right-1 text-lg">{p.m}</span>
