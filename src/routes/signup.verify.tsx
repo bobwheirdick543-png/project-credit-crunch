@@ -21,7 +21,6 @@ function VerifyEmail() {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
-  const [resending, setResending] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
 
   useEffect(() => {
@@ -117,21 +116,6 @@ function VerifyEmail() {
     toast.success("Your email has been confirmed.");
   };
 
-  const resend = async () => {
-    if (!email) return;
-
-    setResending(true);
-    const { error } = await supabase.auth.resend({ type: "signup", email });
-    setResending(false);
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    toast.success("Verification email sent again.");
-  };
-
   if (confirmed) {
     return (
       <AuthShell
@@ -183,18 +167,6 @@ function VerifyEmail() {
           {busy && <LoaderCircle className="h-4 w-4 animate-spin" />}
           Verify & Continue
         </button>
-
-        <div className="text-center text-sm text-muted-foreground">
-          Didn't receive the email?{" "}
-          <button
-            type="button"
-            onClick={resend}
-            disabled={resending || !email}
-            className="font-semibold text-primary hover:underline"
-          >
-            {resending ? "Sending..." : "Resend email"}
-          </button>
-        </div>
 
         <p className="text-center text-sm text-muted-foreground">
           Wrong email?{" "}
