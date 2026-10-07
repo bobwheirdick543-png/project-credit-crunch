@@ -17,9 +17,64 @@ export const Route = createFileRoute("/market/$category/$businessId")({
 
 type CartItem = { id: string; name: string; price: number; qty: number; size?: string };
 
+function welcomeLine(category: string, name: string, username: string) {
+  const who = username ? `, ${username}` : "";
+  switch (category) {
+    case "restaurants":
+      return `Welcome to ${name}${who}! Hey — welcome to our restaurant. How may we help you today?`;
+    case "bars":
+      return `Welcome to ${name}${who}! What are you drinking tonight?`;
+    case "salons":
+      return `Welcome to ${name}${who}! How may we help you look your best today?`;
+    case "boutiques":
+      return `Welcome to ${name}${who}! These are the pieces we have in stock.`;
+    case "jewelry":
+      return `Welcome to ${name}${who}! Explore our collection.`;
+    case "cars":
+      return `Welcome to ${name}${who}! These are the available vehicles on our lot.`;
+    case "electronics":
+      return `Welcome to ${name}${who}! Latest gadgets ready for you.`;
+    case "hotels":
+      return `Welcome to ${name}${who}! How long will you be staying?`;
+    case "gyms":
+      return `Welcome to ${name}${who}! Ready to train?`;
+    case "cinemas":
+      return `Welcome to ${name}${who}! What's on your list tonight?`;
+    default:
+      return `Welcome to ${name}${who}! How may we help you today?`;
+  }
+}
+
+function menuHeading(category: string) {
+  switch (category) {
+    case "restaurants":
+      return "These are the available meals — which do you want?";
+    case "bars":
+      return "Drinks & bottles available";
+    case "salons":
+      return "Services available today";
+    case "boutiques":
+      return "Items in stock";
+    case "jewelry":
+      return "Pieces available";
+    case "cars":
+      return "Vehicles available on the lot";
+    case "electronics":
+      return "Gadgets available";
+    case "hotels":
+      return "Rooms & packages";
+    case "gyms":
+      return "Memberships & sessions";
+    case "cinemas":
+      return "Tickets & experiences";
+    default:
+      return "Menu";
+  }
+}
+
 function BusinessDetail() {
   const { category, businessId } = Route.useParams();
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -31,6 +86,7 @@ function BusinessDetail() {
   }, [loading, user, navigate]);
 
   const business = getBusinessById(businessId);
+  const username = profile?.username ?? "";
 
   const filteredMenu = useMemo(() => {
     if (!business) return [];
@@ -111,6 +167,13 @@ function BusinessDetail() {
       </div>
 
       <main className="mx-auto max-w-6xl px-5 pt-6">
+        {/* Personalized welcome */}
+        <div className="glass-card mb-6 p-4">
+          <p className="text-sm leading-relaxed text-scene-foreground">
+            {welcomeLine(business.category, business.name, username)}
+          </p>
+        </div>
+
         <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
           <span className="flex items-center gap-1">
             <MapPin className="h-3.5 w-3.5" /> {business.area}, {business.state}
@@ -125,7 +188,7 @@ function BusinessDetail() {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search menu..."
+            placeholder="Search..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="glass-input h-11 pl-10"
@@ -133,7 +196,7 @@ function BusinessDetail() {
         </div>
 
         <div className="mt-6 glass-card p-5">
-          <h2 className="mb-4 text-lg font-bold">Menu</h2>
+          <h2 className="mb-4 text-lg font-bold">{menuHeading(business.category)}</h2>
           <div className="space-y-3">
             {filteredMenu.map((item) => {
               const inCart = cart.filter((c) => c.id.startsWith(item.id));
@@ -169,7 +232,6 @@ function BusinessDetail() {
         </div>
       </main>
 
-      {/* Size picker modal */}
       {sizePicker && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center" onClick={() => setSizePicker(null)}>
           <div className="glass-card w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
