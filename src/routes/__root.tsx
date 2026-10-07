@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ThemeProvider, themeInitScript } from "../lib/theme";
 import { AuthProvider } from "../lib/auth";
+import { BankProvider } from "../lib/BankContext";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -87,10 +88,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://api.fontshare.com" },
       { rel: "stylesheet", href: "https://api.fontshare.com/v2/css?f[]=clash-display@600,700&f[]=satoshi@400,500,700&display=swap" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" },
@@ -125,11 +123,12 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <ThemeProvider>
         <AuthProvider>
-          <Outlet />
-          <Toaster richColors position="top-center" />
+          <BankProvider>
+            <Outlet />
+            <Toaster richColors position="top-center" />
+          </BankProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
