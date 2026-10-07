@@ -1,11 +1,10 @@
-/** Food & Stamina system helpers */
+/** Food & Stamina system helpers — all localStorage access is SSR-safe */
 
 export type FoodEffect = {
   sustenance: number;
   stamina: number;
 };
 
-/** Map price tier to sustenance + stamina gains */
 export function getFoodEffect(price: number): FoodEffect {
   if (price >= 50000) return { sustenance: 100, stamina: 75 };
   if (price >= 15000) return { sustenance: 60, stamina: 40 };
@@ -16,20 +15,38 @@ export function getFoodEffect(price: number): FoodEffect {
 const SUST_KEY = "sl-sustenance";
 const STAM_KEY = "sl-stamina";
 
+function safeGet(key: string, fallback: string) {
+  try {
+    if (typeof window === "undefined") return fallback;
+    return localStorage.getItem(key) ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function safeSet(key: string, value: string) {
+  try {
+    if (typeof window === "undefined") return;
+    localStorage.setItem(key, value);
+  } catch {
+    /* ignore */
+  }
+}
+
 export function getSustenance(): number {
-  return Number(localStorage.getItem(SUST_KEY) || 50);
+  return Number(safeGet(SUST_KEY, "50"));
 }
 
 export function getStamina(): number {
-  return Number(localStorage.getItem(STAM_KEY) || 50);
+  return Number(safeGet(STAM_KEY, "50"));
 }
 
 export function setSustenance(n: number) {
-  localStorage.setItem(SUST_KEY, String(Math.min(100, Math.max(0, n))));
+  safeSet(SUST_KEY, String(Math.min(100, Math.max(0, n))));
 }
 
 export function setStamina(n: number) {
-  localStorage.setItem(STAM_KEY, String(Math.min(100, Math.max(0, n))));
+  safeSet(STAM_KEY, String(Math.min(100, Math.max(0, n))));
 }
 
 export function consumeFood(price: number): {

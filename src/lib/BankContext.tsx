@@ -31,14 +31,42 @@ const BankContext = createContext<BankContextValue | null>(null);
 const STORAGE_KEY = "sl-bank-balance";
 const TX_KEY = "sl-bank-tx";
 
+function safeGet(key: string, fallback: string) {
+  try {
+    if (typeof window === "undefined") return fallback;
+    return localStorage.getItem(key) ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function safeSet(key: string, value: string) {
+  try {
+    if (typeof window === "undefined") return;
+    localStorage.setItem(key, value);
+  } catch {
+    /* ignore */
+  }
+}
+
+const DEFAULT: BankContextValue = {
+  balance: 5000,
+  setBalance: () => {},
+  transactions: [],
+  notify: () => {},
+  deduct: () => false,
+  deposit: () => {},
+};
+
 export function BankProvider({ children }: { children: ReactNode }) {
   const [balance, setBalanceState] = useState(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? Number(stored) : 5000;
+    const stored = safeGet(STORAGE_KEY, "5000");
+    const n = Number(stored);
+    return Number.isFinite(n) ? n : 5000;
   });
   const [transactions, setTransactions] = useState<BankTransaction[]>(() => {
     try {
-      return JSON.parse(localStorage.getItem(TX_KEY) || "[]");
+      return JSON.parse(safeGet(TX_KEY, "[]"));
     } catch {
       return [];
     }
@@ -46,11 +74,11 @@ export function BankProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<BankToast[]>([]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, String(balance));
+    safeSet(STORAGE_KEY, String(balance));
   }, [balance]);
 
   useEffect(() => {
-    localStorage.setItem(TX_KEY, JSON.stringify(transactions.slice(0, 50)));
+    safeSet(TX_KEY, JSON.stringify(transactions.slice(0, 50)));
   }, [transactions]);
 
   const setBalance = (n: number | ((prev: number) => number)) => {
@@ -60,12 +88,12 @@ export function BankProvider({ children }: { children: ReactNode }) {
   const notify = (tx: Omit<BankTransaction, "id" | "timestamp">) => {
     const full: BankTransaction = {
       ...tx,
-      id: crypto.randomUUID(),
+      id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
       timestamp: Date.now(),
     };
     setTransactions((prev) => [full, ...prev].slice(0, 50));
 
-    const toastId = crypto.randomUUID();
+    const toastId = full.id;
     const verb =
       tx.type === "purchase"
         ? "You spent"
@@ -112,7 +140,6 @@ export function BankProvider({ children }: { children: ReactNode }) {
   return (
     <BankContext.Provider value={value}>
       {children}
-      {/* Apple-style toast stack */}
       <div className="pointer-events-none fixed right-4 top-20 z-[100] flex w-[min(100vw-2rem,320px)] flex-col gap-2">
         <AnimatePresence>
           {toasts.map((t) => (
@@ -139,8 +166,8 @@ export function BankProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useBank() {
+/** Safe hook — never throws. Returns defaults if provider is missing. */
+export function useBank(): BankContextValue {
   const ctx = useContext(BankContext);
-  if (!ctx) throw new Error("useBank must be used inside BankProvider");
-  return ctx;
+  return ctx ?? DEFAULT;
 }
