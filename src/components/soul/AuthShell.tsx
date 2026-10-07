@@ -40,7 +40,7 @@ export function AuthShell({ eyebrow, title, copy, children }: { eyebrow: string;
         <ThemeControl />
       </header>
 
-      <div className="relative z-10 mx-auto grid min-h-svh max-w-6xl items-center gap-6 px-5 pb-6 pt-24 lg:grid-cols-[1fr_28rem]">
+      <div className="relative z-10 mx-auto grid min-h-svh max-w-6xl items-start gap-6 px-5 pb-6 pt-20 sm:items-center sm:pt-24 lg:grid-cols-[1fr_28rem]">
         <div className="max-w-xl text-scene-foreground">
           <p className="font-mono text-xs tracking-[0.25em] text-primary">{eyebrow}</p>
           <h1 className="mt-4 text-5xl font-bold leading-none text-scene-foreground sm:text-7xl">{title}</h1>
