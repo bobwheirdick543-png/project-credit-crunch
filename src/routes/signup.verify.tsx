@@ -63,7 +63,7 @@ function VerifyEmail() {
     sessionStorage.removeItem("sl-signup-whatsapp");
     setBusy(false);
     toast.success("Email verified. Welcome to Soul Life.");
-    await navigate({ to: "/dashboard", replace: true });
+    await navigate({ to: "/signup/profile", replace: true });
   };
 
   return (
