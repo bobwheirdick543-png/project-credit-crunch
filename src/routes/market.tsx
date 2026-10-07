@@ -4,7 +4,7 @@ import { AppNav } from "@/components/soul/AppNav";
 import { BackButton } from "@/components/soul/BackButton";
 import { useAuth } from "@/lib/auth";
 import { CATEGORIES } from "@/data/district/types";
-import { abujaBusinesses } from "@/data/district/abuja";
+import { getBusinessesByState } from "@/data/district";
 import { MapPin } from "lucide-react";
 
 export const Route = createFileRoute("/market")({
@@ -22,12 +22,8 @@ function DistrictHome() {
     if (!loading && !user) void navigate({ to: "/login", replace: true });
   }, [loading, user, navigate]);
 
-  // Filter businesses by user's current state
-  const stateBusinesses = abujaBusinesses.filter(
-    (b) => b.state.toLowerCase() === currentState.toLowerCase() || currentState === "Abuja"
-  );
+  const stateBusinesses = getBusinessesByState(currentState);
 
-  // Count businesses per category for this state
   const categoryCounts = CATEGORIES.map((c) => ({
     ...c,
     count: stateBusinesses.filter((b) => b.category === c.id).length,
@@ -38,10 +34,8 @@ function DistrictHome() {
       <AppNav />
       <BackButton />
       <main className="mx-auto max-w-6xl px-5 pt-28">
-        <div className="mb-2 flex items-center gap-2">
-          <h1 className="text-3xl font-bold">The District</h1>
-        </div>
-        <div className="mb-8 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+        <h1 className="text-3xl font-bold">The District</h1>
+        <div className="mb-8 mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
           <MapPin className="h-3 w-3" />
           You are in {currentState}
         </div>

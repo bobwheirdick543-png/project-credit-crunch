@@ -1,11 +1,13 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { AppNav } from "@/components/soul/AppNav";
 import { BackButton } from "@/components/soul/BackButton";
 import { useAuth } from "@/lib/auth";
-import { abujaBusinesses } from "@/data/district/abuja";
-import { formatNaira, formatNairaFull } from "@/lib/currency";
+import { getBusinessById } from "@/data/district";
+import { formatNairaFull } from "@/lib/currency";
+import { isShoe, isClothing, CLOTHING_SIZES, SHOE_SIZES } from "@/lib/sizes";
 import { MapPin, Star, Search, Plus, Minus, ShoppingCart } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/market/$category/$businessId")({
   ssr: false,
@@ -13,7 +15,7 @@ export const Route = createFileRoute("/market/$category/$businessId")({
   component: BusinessDetail,
 });
 
-type CartItem = { id: string; name: string; price: number; qty: number };
+type CartItem = { id: string; name: string; price: number; qty: number; size?: string };
 
 function BusinessDetail() {
   const { category, businessId } = Route.useParams();
@@ -21,12 +23,14 @@ function BusinessDetail() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [sizePicker, setSizePicker] = useState<{ id: string; name: string; price: number } | null>(null);
+  const [selectedSize, setSelectedSize] = useState("");
 
   useEffect(() => {
     if (!loading && !user) void navigate({ to: "/login", replace: true });
   }, [loading, user, navigate]);
 
-  const business = abujaBusinesses.find((b) => b.id === businessId);
+  const business = getBusinessById(businessId);
 
   const filteredMenu = useMemo(() => {
     if (!business) return [];
@@ -43,21 +47,33 @@ function BusinessDetail() {
     );
   }
 
-  const addToCart = (item: { id: string; name: string; price: number }) => {
+  const needsSize = (name: string) =>
+    isShoe(name) || isClothing(name, business.category);
+
+  const tryAdd = (item: { id: string; name: string; price: number }) => {
+    if (needsSize(item.name)) {
+      setSizePicker(item);
+      setSelectedSize("");
+      return;
+    }
+    addToCart(item);
+  };
+
+  const addToCart = (item: { id: string; name: string; price: number }, size?: string) => {
+    const key = size ? `${item.id}-${size}` : item.id;
     setCart((prev) => {
-      const existing = prev.find((c) => c.id === item.id);
+      const existing = prev.find((c) => c.id === key);
       if (existing) {
-        return prev.map((c) => (c.id === item.id ? { ...c, qty: c.qty + 1 } : c));
+        return prev.map((c) => (c.id === key ? { ...c, qty: c.qty + 1 } : c));
       }
-      return [...prev, { ...item, qty: 1 }];
+      return [...prev, { id: key, name: size ? `${item.name} (${size})` : item.name, price: item.price, qty: 1, size }];
     });
+    setSizePicker(null);
   };
 
   const updateQty = (id: string, delta: number) => {
     setCart((prev) =>
-      prev
-        .map((c) => (c.id === id ? { ...c, qty: c.qty + delta } : c))
-        .filter((c) => c.qty > 0)
+      prev.map((c) => (c.id === id ? { ...c, qty: c.qty + delta } : c)).filter((c) => c.qty > 0)
     );
   };
 
@@ -72,12 +88,17 @@ function BusinessDetail() {
     });
   };
 
+  const sizeOptions = sizePicker
+    ? isShoe(sizePicker.name)
+      ? SHOE_SIZES.map((s) => ({ label: s, uk: s }))
+      : CLOTHING_SIZES
+    : [];
+
   return (
     <div className="aurora-bg min-h-screen pb-28">
       <AppNav />
       <BackButton />
 
-      {/* Hero */}
       <div className="relative h-72 w-full">
         <img src={business.imageUrl} alt={business.name} className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
@@ -100,7 +121,6 @@ function BusinessDetail() {
         </div>
         <p className="mt-2 text-sm text-muted-foreground">{business.description}</p>
 
-        {/* Search */}
         <div className="relative mt-6">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
@@ -112,32 +132,30 @@ function BusinessDetail() {
           />
         </div>
 
-        {/* Menu */}
         <div className="mt-6 glass-card p-5">
           <h2 className="mb-4 text-lg font-bold">Menu</h2>
           <div className="space-y-3">
             {filteredMenu.map((item) => {
-              const inCart = cart.find((c) => c.id === item.id);
+              const inCart = cart.filter((c) => c.id.startsWith(item.id));
+              const qty = inCart.reduce((s, c) => s + c.qty, 0);
               return (
                 <div key={item.id} className="flex items-center justify-between gap-3 border-b border-border/50 pb-3 last:border-0">
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium">
-                      {item.emoji} {item.name}
-                    </p>
+                    <p className="font-medium">{item.emoji} {item.name}</p>
                     <p className="text-sm font-semibold text-primary">{formatNairaFull(item.price)}</p>
                   </div>
-                  {inCart ? (
+                  {qty > 0 ? (
                     <div className="flex items-center gap-2">
-                      <button onClick={() => updateQty(item.id, -1)} className="glass-pill !p-1.5">
+                      <button onClick={() => updateQty(inCart[0].id, -1)} className="glass-pill !p-1.5">
                         <Minus className="h-3.5 w-3.5" />
                       </button>
-                      <span className="w-6 text-center text-sm font-bold">{inCart.qty}</span>
-                      <button onClick={() => updateQty(item.id, 1)} className="glass-pill !p-1.5">
+                      <span className="w-6 text-center text-sm font-bold">{qty}</span>
+                      <button onClick={() => tryAdd(item)} className="glass-pill !p-1.5">
                         <Plus className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   ) : (
-                    <button onClick={() => addToCart(item)} className="glass-button !px-3 !py-1.5 text-xs">
+                    <button onClick={() => tryAdd(item)} className="glass-button !px-3 !py-1.5 text-xs">
                       + Add
                     </button>
                   )}
@@ -151,7 +169,43 @@ function BusinessDetail() {
         </div>
       </main>
 
-      {/* Fixed cart bar */}
+      {/* Size picker modal */}
+      {sizePicker && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center" onClick={() => setSizePicker(null)}>
+          <div className="glass-card w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold">{sizePicker.name}</h3>
+            <p className="mt-1 text-sm text-primary">{formatNairaFull(sizePicker.price)}</p>
+            <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Select size</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {sizeOptions.map((s) => (
+                <button
+                  key={s.label}
+                  onClick={() => setSelectedSize(s.label)}
+                  className={`glass-pill px-3 py-1.5 text-xs ${
+                    selectedSize === s.label ? "border-primary bg-primary/15 text-primary" : ""
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+            <button
+              className="glass-button mt-6 w-full"
+              disabled={!selectedSize}
+              onClick={() => {
+                if (!selectedSize) {
+                  toast.error("Select a size first");
+                  return;
+                }
+                addToCart(sizePicker, selectedSize);
+              }}
+            >
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      )}
+
       {itemCount > 0 && (
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/90 p-4 backdrop-blur-xl">
           <button onClick={goCheckout} className="glass-button mx-auto flex w-full max-w-lg items-center justify-between !px-5">

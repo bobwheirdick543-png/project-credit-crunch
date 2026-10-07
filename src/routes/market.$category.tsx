@@ -4,7 +4,7 @@ import { AppNav } from "@/components/soul/AppNav";
 import { BackButton } from "@/components/soul/BackButton";
 import { useAuth } from "@/lib/auth";
 import { CATEGORIES } from "@/data/district/types";
-import { abujaBusinesses } from "@/data/district/abuja";
+import { getBusinessesByCategory } from "@/data/district";
 import { formatNaira } from "@/lib/currency";
 import { MapPin, Star } from "lucide-react";
 
@@ -25,11 +25,7 @@ function CategoryPage() {
   }, [loading, user, navigate]);
 
   const cat = CATEGORIES.find((c) => c.id === category);
-  const businesses = abujaBusinesses.filter(
-    (b) =>
-      b.category === category &&
-      (b.state.toLowerCase() === currentState.toLowerCase() || currentState === "Abuja")
-  );
+  const businesses = getBusinessesByCategory(currentState, category);
 
   return (
     <div className="aurora-bg min-h-screen pb-20">

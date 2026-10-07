@@ -2,9 +2,11 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AppNav } from "@/components/soul/AppNav";
 import { useAuth } from "@/lib/auth";
-import { abujaBusinesses } from "@/data/district/abuja";
+import { getBusinessById } from "@/data/district";
 import { formatNairaFull } from "@/lib/currency";
-import { CheckCircle } from "lucide-react";
+import { consumeFood, getSustenance, getStamina } from "@/lib/stamina";
+import { CheckCircle, Utensils } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/market/$category/$businessId/receipt")({
   ssr: false,
@@ -17,6 +19,7 @@ function ReceiptPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [receipt, setReceipt] = useState<any>(null);
+  const [eaten, setEaten] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) void navigate({ to: "/login", replace: true });
@@ -26,7 +29,8 @@ function ReceiptPage() {
     } catch {}
   }, [loading, user, navigate]);
 
-  const business = abujaBusinesses.find((b) => b.id === businessId);
+  const business = getBusinessById(businessId);
+  const isFood = business?.category === "restaurants" || business?.category === "bars";
 
   if (!receipt || !business) {
     return (
@@ -35,6 +39,30 @@ function ReceiptPage() {
       </div>
     );
   }
+
+  const handleEat = () => {
+    const avgPrice =
+      receipt.cart?.length > 0
+        ? receipt.cart.reduce((s: number, c: any) => s + c.price * c.qty, 0) /
+          receipt.cart.reduce((s: number, c: any) => s + c.qty, 0)
+        : 5000;
+
+    const result = consumeFood(avgPrice);
+    if (!result.ok) {
+      toast.error(result.message, {
+        action: {
+          label: "Throw Away",
+          onClick: () => {
+            toast("A hungry Soul picked it up. Karma +1.");
+            setEaten(true);
+          },
+        },
+      });
+      return;
+    }
+    toast.success(result.message);
+    setEaten(true);
+  };
 
   return (
     <div className="aurora-bg min-h-screen pb-20">
@@ -98,7 +126,19 @@ function ReceiptPage() {
             </div>
           </div>
 
-          <div className="mt-8 flex flex-col gap-2">
+          {/* Eat Now for food */}
+          {isFood && !eaten && (
+            <button onClick={handleEat} className="glass-button mt-6 w-full">
+              <Utensils className="h-4 w-4" /> Eat Now
+            </button>
+          )}
+          {eaten && (
+            <p className="mt-4 text-xs text-primary">
+              Sustenance {getSustenance()}% · Stamina {getStamina()}%
+            </p>
+          )}
+
+          <div className="mt-6 flex flex-col gap-2">
             <Link
               to="/market/$category/$businessId"
               params={{ category, businessId }}
