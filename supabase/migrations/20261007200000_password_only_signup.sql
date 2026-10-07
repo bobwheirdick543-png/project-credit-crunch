@@ -67,6 +67,7 @@ FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 CREATE OR REPLACE FUNCTION public.protect_profile_legal_acceptance()
 RETURNS trigger
 LANGUAGE plpgsql
+SET search_path = public
 AS $fn$
 BEGIN
   NEW.terms_accepted_at := OLD.terms_accepted_at;
