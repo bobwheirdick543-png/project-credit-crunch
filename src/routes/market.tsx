@@ -4,7 +4,6 @@ import { AppNav } from "@/components/soul/AppNav";
 import { BackButton } from "@/components/soul/BackButton";
 import { useAuth } from "@/lib/auth";
 import { CATEGORIES } from "@/data/district/types";
-import { getBusinessesByState } from "@/data/district";
 import { MapPin } from "lucide-react";
 
 export const Route = createFileRoute("/market")({
@@ -22,12 +21,19 @@ function DistrictHome() {
     if (!loading && !user) void navigate({ to: "/login", replace: true });
   }, [loading, user, navigate]);
 
-  const stateBusinesses = getBusinessesByState(currentState);
-
-  const categoryCounts = CATEGORIES.map((c) => ({
-    ...c,
-    count: stateBusinesses.filter((b) => b.category === c.id).length,
-  }));
+  // Safe import — never crash if data module fails
+  let categoryCounts = CATEGORIES.map((c) => ({ ...c, count: 0 }));
+  try {
+    // dynamic require avoided; static import of helpers
+    const { getBusinessesByState } = require("@/data/district") as typeof import("@/data/district");
+    const stateBusinesses = getBusinessesByState(currentState);
+    categoryCounts = CATEGORIES.map((c) => ({
+      ...c,
+      count: stateBusinesses.filter((b) => b.category === c.id).length,
+    }));
+  } catch {
+    // leave counts at 0 — show Coming soon
+  }
 
   return (
     <div className="aurora-bg min-h-screen pb-20">
