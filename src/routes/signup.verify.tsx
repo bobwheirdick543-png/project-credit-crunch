@@ -38,25 +38,56 @@ function VerifyEmail() {
         return;
       }
 
-      if (!authCode) {
-        if (!stored) {
-          void navigate({ to: "/signup" });
+      if (authCode) {
+        setBusy(true);
+        const { error } = await supabase.auth.exchangeCodeForSession(authCode);
+        setBusy(false);
+
+        if (error) {
+          toast.error("This verification link is invalid or has expired.");
+          return;
         }
+
+        setConfirmed(true);
+        toast.success("Your email has been confirmed.");
+        sessionStorage.removeItem("sl-signup-email");
         return;
       }
 
-      setBusy(true);
-      const { error } = await supabase.auth.exchangeCodeForSession(authCode);
-      setBusy(false);
+      const tokenHash = params.get("token_hash");
+      if (tokenHash) {
+        setBusy(true);
+        const { error } = await supabase.auth.verifyOtp({
+          type: "email",
+          token_hash: tokenHash,
+        });
+        setBusy(false);
 
-      if (error) {
-        toast.error("This verification link is invalid or has expired.");
+        if (error) {
+          toast.error("This verification link is invalid or has expired.");
+          return;
+        }
+
+        setConfirmed(true);
+        toast.success("Your email has been confirmed.");
+        sessionStorage.removeItem("sl-signup-email");
         return;
       }
 
-      setConfirmed(true);
-      toast.success("Your email has been confirmed.");
-      sessionStorage.removeItem("sl-signup-email");
+      // Supabase's client-side implicit flow can place the confirmed session
+      // in the URL hash. The client consumes it automatically, so check the
+      // resulting session when there is no code/token_hash in the query.
+      const { data } = await supabase.auth.getSession();
+      if (data.session?.user?.email_confirmed_at) {
+        setConfirmed(true);
+        toast.success("Your email has been confirmed.");
+        sessionStorage.removeItem("sl-signup-email");
+        return;
+      }
+
+      if (!stored) {
+        void navigate({ to: "/signup" });
+      }
     };
 
     void finishLinkVerification();
