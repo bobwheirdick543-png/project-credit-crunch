@@ -1,10 +1,8 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { AppNav } from "@/components/soul/AppNav";
 import { BackButton } from "@/components/soul/BackButton";
 import { useAuth } from "@/lib/auth";
-import { CATEGORIES } from "@/data/district/types";
-import { getBusinessesByState } from "@/data/district";
 import { MapPin } from "lucide-react";
 
 export const Route = createFileRoute("/market")({
@@ -22,18 +20,6 @@ function DistrictHome() {
     if (!loading && !user) void navigate({ to: "/login", replace: true });
   }, [loading, user, navigate]);
 
-  const categoryCounts = useMemo(() => {
-    try {
-      const stateBusinesses = getBusinessesByState(currentState);
-      return CATEGORIES.map((c) => ({
-        ...c,
-        count: stateBusinesses.filter((b) => b.category === c.id).length,
-      }));
-    } catch {
-      return CATEGORIES.map((c) => ({ ...c, count: 0 }));
-    }
-  }, [currentState]);
-
   return (
     <div className="aurora-bg min-h-screen pb-20">
       <AppNav />
@@ -49,23 +35,14 @@ function DistrictHome() {
           Explore businesses in your current city. Shop, eat, and spend Naira.
         </p>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {categoryCounts.map((c) => (
-            <Link
-              key={c.id}
-              to="/market/$category"
-              params={{ category: c.id }}
-              className="glass-card glow-hover flex items-center gap-4 p-5 transition-all"
-            >
-              <span className="text-3xl">{c.emoji}</span>
-              <div>
-                <p className="font-semibold">{c.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {c.count > 0 ? `${c.count} places` : "Coming soon"}
-                </p>
-              </div>
-            </Link>
-          ))}
+        {/* Placeholder — ready for new District content */}
+        <div className="glass-card p-12 text-center">
+          <p className="text-lg font-medium text-muted-foreground">
+            The District is being rebuilt.
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            New content coming soon.
+          </p>
         </div>
       </main>
     </div>
