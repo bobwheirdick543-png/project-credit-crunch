@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Showroom } from "@/components/district/ShopPages";
 import { pageHead } from "@/lib/metadata";
+import { DistrictBankProvider } from "@/lib/DistrictBankContext";
 
 export const Route = createFileRoute("/market/$category/$businessId")({
   ssr: false,
@@ -14,5 +15,9 @@ export const Route = createFileRoute("/market/$category/$businessId")({
 
 function Page() {
   const params = Route.useParams();
-  return <Showroom key={params.businessId} {...params} />;
+  return (
+    <DistrictBankProvider>
+      <Showroom key={params.businessId} {...params} />
+    </DistrictBankProvider>
+  );
 }

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { BusinessListing } from "@/components/district/ShopPages";
 import { pageHead } from "@/lib/metadata";
+import { DistrictBankProvider } from "@/lib/DistrictBankContext";
 
 export const Route = createFileRoute("/market/$category")({
   ssr: false,
@@ -14,5 +15,9 @@ export const Route = createFileRoute("/market/$category")({
 
 function Page() {
   const { category } = Route.useParams();
-  return <BusinessListing category={category} />;
+  return (
+    <DistrictBankProvider>
+      <BusinessListing category={category} />
+    </DistrictBankProvider>
+  );
 }

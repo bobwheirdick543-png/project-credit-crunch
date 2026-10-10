@@ -1,4 +1,5 @@
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { Hub } from "@/components/district/Hub";
 import { pageHead } from "@/lib/metadata";
 import { DistrictBankProvider } from "@/lib/DistrictBankContext";
 
@@ -11,7 +12,7 @@ export const Route = createFileRoute("/market")({
     ),
   component: () => (
     <DistrictBankProvider>
-      <Outlet />
+      <Hub />
     </DistrictBankProvider>
   ),
 });

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Checkout } from "@/components/district/ShopPages";
 import { pageHead } from "@/lib/metadata";
+import { DistrictBankProvider } from "@/lib/DistrictBankContext";
 
 export const Route = createFileRoute("/market/$category/$businessId/checkout")({
   ssr: false,
@@ -14,5 +15,9 @@ export const Route = createFileRoute("/market/$category/$businessId/checkout")({
 
 function Page() {
   const params = Route.useParams();
-  return <Checkout {...params} />;
+  return (
+    <DistrictBankProvider>
+      <Checkout {...params} />
+    </DistrictBankProvider>
+  );
 }
