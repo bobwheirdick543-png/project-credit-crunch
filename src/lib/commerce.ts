@@ -1,0 +1,8 @@
+export const money=(value:number,compact=false)=>'₦'+(compact && value>=1e9 ? `${Number((value/1e9).toFixed(1))}B` : compact && value>=1e6 ? `${Number((value/1e6).toFixed(1))}M` : Math.round(value).toLocaleString('en-US'));
+export function foodBoost(price:number){return price<5000?{sustenance:15,stamina:10}:price<15000?{sustenance:30,stamina:20}:price<50000?{sustenance:60,stamina:40}:{sustenance:100,stamina:75};}
+export function bill(subtotal:number,tier:'street'|'casual'|'luxury',tip=0,fleet=false){const net=fleet?subtotal*.95:subtotal;const vat=Math.round(net*.075);const service=Math.round(net*(tier==='luxury'?.1:.05));return {subtotal:net,discount:subtotal-net,vat,service,tip,total:net+vat+service+tip};}
+export const batchCost=(heads:number,tier:'street'|'casual'|'luxury')=>heads*(tier==='street'?3000:tier==='luxury'?25000:10000);
+export const canPay=(balance:number,total:number)=>Number.isFinite(total)&&total>0&&balance>=total;
+export const replenish=(current:number,boost:number)=>Math.min(100,current+boost);
+export const weekStart=(date=new Date())=>{const wat=new Date(date.getTime()+3600000);let boundary=Date.UTC(wat.getUTCFullYear(),wat.getUTCMonth(),wat.getUTCDate()-wat.getUTCDay(),23,59)-3600000;if(boundary>date.getTime())boundary-=7*86400000;return new Date(boundary).toISOString();};
+export function createTitle(city:string,owner:string,model:string,price:number,customPlate?:string,giftedBy?:string){const id=crypto.randomUUID().replaceAll('-','').toUpperCase();return {vin:('SL'+id).slice(0,17),plate:customPlate?.trim().toUpperCase()||`${city==='Lagos'?'LAG':'ABJ'}-${Math.floor(100+Math.random()*900)}-SL`,owner,model,price,date:new Date().toISOString(),seal:id,giftedBy};}
