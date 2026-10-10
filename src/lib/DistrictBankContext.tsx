@@ -1,13 +1,16 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import type { Product } from '@/data/district/catalog';
-import { bill, canPay, createTitle, foodBoost, replenish } from '@/lib/commerce';
+import { bill, canPay, createTitle, foodBoost, replenish, batchCost, money } from '@/lib/commerce';
 
-export type CartItem = { id: string; name: string; price: number; qty: number; size?: string; type?: string };
+export type CartItem = { product: Product; quantity: number; size?: string };
 export type Asset = {
   id: string;
   product: Product;
-  status: 'owned' | 'pawned' | 'equipped';
+  size?: string;
+  status: 'owned' | 'pawned' | 'equipped' | 'consumed' | 'saved';
+  acquiredAt?: string;
+  condition?: number;
   title?: ReturnType<typeof createTitle>;
   pawn?: { loan: number; due: string };
   commercial?: boolean;
@@ -17,8 +20,12 @@ export type Receipt = {
   business: string;
   city: string;
   items: CartItem[];
-  total: number;
-  timestamp: number;
+  totals: ReturnType<typeof bill>;
+  date: string;
+  heads: number;
+  payment: string;
+  assetIds: string[];
+  remaining: number;
 };
 
 type Progress = {
@@ -31,7 +38,7 @@ type Progress = {
   rep: number;
   assets: Asset[];
   receipts: Receipt[];
-  transactions: { id: string; label: string; amount: number; ts: number }[];
+  transactions: { id: string; name: string; amount: number; date: string }[];
 };
 
 type BankValue = Progress & {
@@ -65,7 +72,6 @@ type BankValue = Progress & {
   enterVenue: (id: string) => boolean;
   highRoller: (venueId: string, itemId: string) => void;
   vip?: boolean;
-  reward?: unknown;
 };
 
 const initial: Progress = {
@@ -82,7 +88,7 @@ const initial: Progress = {
 };
 
 const Ctx = createContext<BankValue | null>(null);
-const KEY = 'sl-district-bank';
+const KEY = 'sl-district-bank-v2';
 
 export function DistrictBankProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<Progress>(() => {
@@ -110,7 +116,7 @@ export function DistrictBankProvider({ children }: { children: ReactNode }) {
     setState((s) => ({
       ...s,
       balance: s.balance - amount,
-      transactions: [{ id: crypto.randomUUID(), label: name, amount: -amount, ts: Date.now() }, ...s.transactions].slice(0, 40),
+      transactions: [{ id: crypto.randomUUID(), name, amount: -amount, date: new Date().toISOString() }, ...s.transactions].slice(0, 40),
     }));
     return true;
   };
@@ -121,46 +127,54 @@ export function DistrictBankProvider({ children }: { children: ReactNode }) {
   };
 
   const purchase: BankValue['purchase'] = (input) => {
-    const sub = input.items.reduce((a, i) => a + i.price * i.qty, 0);
-    const b = bill(sub, input.tier, input.tip, input.fleet > 0);
-    if (!canPay(state.balance, b.total)) {
+    if (!input.items.length && !input.heads) return null;
+    const fleet = input.fleet;
+    const subtotal = input.heads
+      ? batchCost(input.heads, input.tier)
+      : input.items.reduce((n, i) => n + i.product.price * i.quantity, 0) * (fleet || 1);
+    const totals = bill(subtotal, input.tier, input.tip, fleet === 5);
+    if (!canPay(state.balance, totals.total)) {
       toast.error('Insufficient funds');
       return null;
     }
+    const now = new Date().toISOString();
+    const receiptId = `TXN-SL-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+    const assets: Asset[] =
+      input.heads || fleet
+        ? []
+        : input.items.flatMap((item) =>
+            Array.from({ length: item.quantity }, () => ({
+              id: crypto.randomUUID(),
+              product: item.product,
+              size: item.size,
+              status: 'owned' as const,
+              acquiredAt: now,
+              ...(item.product.type === 'car'
+                ? { condition: 100, title: createTitle(state.city, input.owner || state.username, item.product.name, item.product.price, input.plate) }
+                : {}),
+            }))
+          );
     const receipt: Receipt = {
-      id: crypto.randomUUID().slice(0, 8).toUpperCase(),
+      id: receiptId,
       business: input.business,
-      city: input.city,
+      city: state.city,
       items: input.items,
-      total: b.total,
-      timestamp: Date.now(),
+      totals,
+      date: now,
+      heads: input.heads || fleet,
+      payment: input.payment,
+      assetIds: assets.map((a) => a.id),
+      remaining: state.balance - totals.total,
     };
-    const newAssets: Asset[] = input.items
-      .filter((i) => i.type === 'car' || i.type === 'fashion')
-      .map((i) => ({
-        id: crypto.randomUUID(),
-        product: {
-          id: i.id,
-          name: i.name,
-          price: i.price,
-          type: (i.type as Product['type']) || 'general',
-          description: '',
-        },
-        status: 'owned' as const,
-        title:
-          i.type === 'car'
-            ? createTitle(input.city, input.owner || state.username, i.name, i.price, input.plate)
-            : undefined,
-      }));
     setState((s) => ({
       ...s,
-      balance: s.balance - b.total,
+      balance: s.balance - totals.total,
+      assets: [...assets, ...s.assets],
       receipts: [receipt, ...s.receipts].slice(0, 30),
-      assets: [...newAssets, ...s.assets],
-      rep: s.rep + Math.min(50, Math.round(b.total / 20000)),
-      transactions: [{ id: receipt.id, label: input.business, amount: -b.total, ts: Date.now() }, ...s.transactions].slice(0, 40),
+      transactions: [{ id: receiptId, name: input.business, amount: -totals.total, date: now }, ...s.transactions].slice(0, 40),
+      rep: s.rep + Math.min(80, Math.round(totals.total / 15000) + (input.heads ? input.heads * 2 : 0)),
     }));
-    toast.success(`Paid ₦${b.total.toLocaleString()} at ${input.business}`);
+    toast.success(`Payment verified · ${money(totals.total)}`);
     return receipt;
   };
 
@@ -172,8 +186,9 @@ export function DistrictBankProvider({ children }: { children: ReactNode }) {
       ...s,
       sustenance: replenish(s.sustenance, boost.sustenance),
       stamina: replenish(s.stamina, boost.stamina),
-      assets: s.assets.filter((x) => x.id !== id),
+      assets: s.assets.map((x) => (x.id === id ? { ...x, status: 'consumed' } : x)),
     }));
+    toast.success('Enjoyed');
     return true;
   };
 
@@ -187,9 +202,12 @@ export function DistrictBankProvider({ children }: { children: ReactNode }) {
       deposit,
       purchase,
       consume,
-      saveMeal: () => {},
+      saveMeal: (id) => setState((s) => ({ ...s, assets: s.assets.map((a) => (a.id === id ? { ...a, status: 'saved' } : a)) })),
       equip: (id) => setState((s) => ({ ...s, assets: s.assets.map((a) => (a.id === id ? { ...a, status: 'equipped' } : a)) })),
-      share: () => toast('Shared'),
+      share: (id) => {
+        setState((s) => ({ ...s, assets: s.assets.filter((a) => a.id !== id), rep: s.rep + 15 }));
+        toast.success('Shared with the street');
+      },
       sell: (id) => setState((s) => ({ ...s, assets: s.assets.filter((a) => a.id !== id) })),
       pawn: () => {},
       redeem: () => {},
