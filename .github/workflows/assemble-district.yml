@@ -1,0 +1,25 @@
+name: Assemble District Sources
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.district-deploy/**'
+permissions:
+  contents: write
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble and commit
+        run: |
+          set -e
+          cat .district-deploy/shop.*.b64 | tr -d '\n' | base64 -d > src/components/district/ShopPages.tsx
+          cat .district-deploy/cat.*.b64 | tr -d '\n' | base64 -d > src/data/district/catalog.ts
+          wc -c src/components/district/ShopPages.tsx src/data/district/catalog.ts
+          head -5 src/components/district/ShopPages.tsx
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/components/district/ShopPages.tsx src/data/district/catalog.ts
+          git commit -m "Assemble full District ShopPages + catalog (complete buy/pay flows, back buttons)" || exit 0
+          git push
