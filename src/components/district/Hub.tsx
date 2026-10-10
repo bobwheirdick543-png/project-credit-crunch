@@ -36,8 +36,19 @@ export function Hub() {
   );
   const ordered = sort === 'az' ? [...filtered].sort((a, b) => a.name.localeCompare(b.name)) : filtered;
 
+  /** Always open an independent category page (never scroll-in-place). */
   const openCategory = (categoryId: string) => {
-    void navigate({ to: '/market/$category', params: { category: categoryId } });
+    try {
+      void navigate({ to: '/market/$category', params: { category: categoryId } });
+    } catch {
+      window.location.assign(`/market/${categoryId}`);
+    }
+    // Fallback if SPA nav is ignored (e.g. route not matched yet)
+    window.setTimeout(() => {
+      if (!window.location.pathname.includes(`/market/${categoryId}`)) {
+        window.location.assign(`/market/${categoryId}`);
+      }
+    }, 150);
   };
 
   return (
