@@ -1,0 +1,47 @@
+name: Extract District Images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/assets/district-images.zip'
+      - '.github/workflows/extract-district-images.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract zip into src/assets
+        run: |
+          set -e
+          if [ ! -f src/assets/district-images.zip ]; then
+            echo "No zip found"; exit 0
+          fi
+          unzip -o src/assets/district-images.zip -d /tmp/dist-extract
+          # zip contains district-assets/*.jpg
+          if [ -d /tmp/dist-extract/district-assets ]; then
+            cp -f /tmp/dist-extract/district-assets/*.jpg src/assets/
+          else
+            # flat structure fallback
+            find /tmp/dist-extract -name '*.jpg' -exec cp -f {} src/assets/ \;
+          fi
+          ls -la src/assets/*.jpg | head -30
+
+      - name: Commit extracted images
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/assets/*.jpg
+          if git diff --staged --quiet; then
+            echo "No new images to commit"
+            exit 0
+          fi
+          git commit -m "Extract District images from district-images.zip into src/assets"
+          git push
