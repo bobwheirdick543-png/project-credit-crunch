@@ -172,10 +172,11 @@ export function Hub() {
                 (b) => b.category === c.id && (nearby === 'All neighborhoods' || b.area === nearby)
               ).length;
               return (
-                <button
+                <Link
                   key={c.id}
-                  type="button"
-                  onClick={() => openCategory(c.id)}
+                  to="/market/$category"
+                  params={{ category: c.id }}
+                  aria-label={`Browse ${c.name}`}
                   className="glass-card overflow-hidden transition hover:border-primary/40 block text-left w-full cursor-pointer"
                 >
                   <div className="relative h-36">
@@ -194,7 +195,7 @@ export function Hub() {
                     </div>
                     <ArrowUpRight size={18} className="text-muted-foreground" />
                   </div>
-                </button>
+                </Link>
               );
             })}
           </div>
