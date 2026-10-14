@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, ShieldCheck, ShoppingBag, Plus, Minus, Gift } from 'lucide-react';
-import { findBusiness, paymentMethods } from '@/data/district/catalog';
+import { findBusiness, paymentMethods, restaurantPaymentMethods } from '@/data/district/catalog';
 import { useBank, type CartItem } from '@/lib/DistrictBankContext';
 import { money, bill, batchCost, canPay } from '@/lib/commerce';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,8 @@ export function Checkout({ category, businessId }: { category: string; businessI
   const [items, setItems] = useState<CartItem[]>([]);
   const [heads, setHeads] = useState(0);
   const [tip, setTip] = useState(0);
-  const [payment, setPayment] = useState(paymentMethods[0] ?? 'Soul Vault Direct Debit');
+  const availablePaymentMethods = category === 'restaurants' ? restaurantPaymentMethods : paymentMethods;
+  const [payment, setPayment] = useState(availablePaymentMethods[0] ?? 'Soul Vault Direct Debit');
   const [owner, setOwner] = useState('');
   const [plate, setPlate] = useState('');
   const [busy, setBusy] = useState(false);
@@ -112,7 +113,7 @@ export function Checkout({ category, businessId }: { category: string; businessI
               </dl>
               <label className="block mt-4 text-xs">Payment method
                 <select className="glass-input mt-1" value={payment} onChange={(e) => setPayment(e.target.value)}>
-                  {paymentMethods.map((m) => <option key={m}>{m}</option>)}
+                  {availablePaymentMethods.map((m) => <option key={m}>{m}</option>)}
                 </select>
               </label>
               <Button className="w-full mt-4" disabled={busy || !canPay(bank.balance, totals.total)} onClick={pay}>
