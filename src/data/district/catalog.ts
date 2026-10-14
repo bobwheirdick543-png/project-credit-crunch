@@ -107,6 +107,18 @@ const areas:Record<string,string[]>={
  Calabar:['Marian','State Housing','Calabar South'],
  'BS Island':['North Shore','Marina District','Palm Grove'],
 };
+const restaurantAreas:Record<string,string[]>={
+ Abuja:['Maitama','Wuse II','Gwarinpa','Central Business District'],
+ Lagos:['Victoria Island','Lekki Phase 1','Ikoyi','Ikeja GRA'],
+ 'Port Harcourt':['GRA Phase 2','Old GRA'],
+ Enugu:['Independence Layout','New Haven'],
+ Delta:['Asaba GRA','Warri'],
+ Ibadan:['Bodija','Jericho'],
+ Kano:['Nassarawa','Bompai'],
+ Benin:['GRA','Airport Road'],
+ Calabar:['State Housing','Marian'],
+ 'BS Island':['The Marina','Crown Avenue']
+};
 const regionalFood:Record<string,[string,string]>= {
  Abuja:['Capital Suya & Masa','Grilled beef, fluffy masa and yaji'], Lagos:['Lagoon Seafood Rice','Smoky rice, prawns and plantain'],
  'Port Harcourt':['Garden City Bole & Fish','Roasted plantain, grilled fish and pepper sauce'],Enugu:['Coal City Abacha','Cassava salad, garden eggs and ugba'],
@@ -122,7 +134,8 @@ export function cityCatalog(city:string):Business[]{
  const venueFood=foodProducts.map(p=>regional&&p.id==='egusi'?{...p,name:regional[0],description:regional[1]}:p);
  const localName=cat.id==='restaurants'&&i===3&&city!=='Abuja'&&city!=='Lagos'?`${locations[0]??city} Kitchen`:base;
  const venueName=cat.id==='car-dealerships'?`${city} ${base}`:localName==='Radiant'&&city==='Lagos'?'Radiant Ikeja':`${localName} ${city}`;
- return {id:`${cat.id}-${i+1}`,name:venueName,category:cat.id,city,area:locations[i%locations.length]??city,
+ const venueAreas=cat.id==='restaurants'?(restaurantAreas[city]??locations):locations;
+  return {id:`${cat.id}-${i+1}`,name:venueName,category:cat.id,city,area:venueAreas[i%venueAreas.length]??city,
  tier:(cat.id==='restaurants'?(i===2||i===3?'street':i===1?'casual':'luxury'):i===2||i===3?'street':i===1?'casual':'luxury') as Business['tier'],rating:4.9-i*.1,
  products:cat.id==='restaurants'?venueFood:cat.id==='car-dealerships'&&i===2?vehicles.slice(-4):menus[cat.id]??[],
  tag:i===0?'DISTRICT SELECT':i===1?'LOCAL FAVORITE':'STREET ESSENTIAL',image:cat.image};
