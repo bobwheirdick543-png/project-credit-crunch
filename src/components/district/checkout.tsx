@@ -73,7 +73,7 @@ export function Checkout({ category, businessId }: { category: string; businessI
                     <p className="text-primary text-sm">{money(i.product.price)}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setItems((prev) => prev.map((x, xi) => xi === index ? { ...x, quantity: Math.max(1, x.quantity - 1) } : x))}><Minus size={12} /></Button>
+                    <Button size="icon" variant="outline" className="h-8 w-8" aria-label={`Remove one ${i.product.name}`} onClick={() => setItems((prev) => prev.flatMap((x, xi) => xi !== index ? [x] : x.quantity > 1 ? [{ ...x, quantity: x.quantity - 1 }] : []))}><Minus size={12} /></Button>
                     <span className="text-sm w-4 text-center">{i.quantity}</span>
                     <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setItems((prev) => prev.map((x, xi) => xi === index ? { ...x, quantity: x.quantity + 1 } : x))}><Plus size={12} /></Button>
                   </div>
