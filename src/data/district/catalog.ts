@@ -133,9 +133,9 @@ export function cityCatalog(city:string):Business[]{
  const regional=regionalFood[city];
  return categories.flatMap(cat=>(names[cat.id]??[]).map((base,i)=>{
  const venueFood=foodProducts.map(p=>regional&&p.id==='egusi'?{...p,name:regional[0],description:regional[1]}:p);
- const localName=cat.id==='restaurants'&&i===3&&city!=='Abuja'&&city!=='Lagos'?`${locations[0]??city} Kitchen`:base;
- const venueName=cat.id==='car-dealerships'?`${city} ${base}`:localName==='Radiant'&&city==='Lagos'?'Radiant Ikeja':`${localName} ${city}`;
  const venueAreas=cat.id==='restaurants'?(restaurantAreas[city]??locations):locations;
+ const localName=cat.id==='restaurants'&&i===3&&city!=='Abuja'&&city!=='Lagos'?`${venueAreas[0]??city} Kitchen`:base;
+ const venueName=cat.id==='car-dealerships'?`${city} ${base}`:localName==='Radiant'&&city==='Lagos'?'Radiant Ikeja':`${localName} ${city}`;
   return {id:`${cat.id}-${i+1}`,name:venueName,category:cat.id,city,area:venueAreas[i%venueAreas.length]??city,
  tier:(cat.id==='restaurants'?(i===2||i===3?'street':i===1?'casual':'luxury'):i===2||i===3?'street':i===1?'casual':'luxury') as Business['tier'],rating:4.9-i*.1,
  products:cat.id==='restaurants'?venueFood:cat.id==='car-dealerships'&&i===2?vehicles.slice(-4):menus[cat.id]??[],
