@@ -37,7 +37,8 @@ export const categories=[
  {id:'gyms',name:'Gyms & Fitness',sub:'Build strength. Find your rhythm.',image:gymsImg,icon:'Dumbbell',count:7},
  {id:'cinemas',name:'Cinema & Entertainment',sub:'Big screens. Bigger experiences.',image:cinemaImg,icon:'Clapperboard',count:6},
 ];
-export const paymentMethods=['Soul Vault Direct Debit','OPai','Kudo','Palm Bank','Gold Trust Bank','Zenith Trust Bank','Access Trust','First Trust Bank'];
+export const paymentMethods=['Soul Vault Direct Debit','Soul Card','Cash at Counter','Bank Transfer'];
+export const restaurantPaymentMethods=['Soul Vault Direct Debit','OPai','Kudo','Palm Bank','Gold Trust Bank','Zenith Trust Bank','Access Trust','First Trust Bank'];
 const foodProducts:Product[]=[
  {id:'jollof',name:'Smoky Jollof & Grilled Chicken',price:12000,type:'food',image:foodImg,description:'Party-style rice, flame-grilled chicken and sweet plantain'},
  {id:'suya',name:'Signature Suya Platter',price:28000,type:'food',image:suyaImg,description:'Chargrilled beef, yaji spice and crisp vegetables'},
