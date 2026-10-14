@@ -3,7 +3,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, MapPin, Star, Search, ShieldCheck, ShoppingBag, Plus, X, Package } from 'lucide-react';
 import { categories, findBusiness, type Product } from '@/data/district/catalog';
 import { useBank, type CartItem } from '@/lib/DistrictBankContext';
-import { money } from '@/lib/commerce';
+import { money, foodBoost } from '@/lib/commerce';
 import { Button } from '@/components/ui/button';
 import { Media } from './Media';
 import { toast } from 'sonner';
@@ -84,6 +84,12 @@ export function Showroom({ category, businessId }: { category: string; businessI
               <h2 className="text-xl font-bold">{selected.name}</h2>
               <p className="text-sm text-muted-foreground mt-1">{selected.description}</p>
               <p className="text-primary text-lg font-semibold mt-3">{money(selected.price)}</p>
+              {selected.type === 'food' && (
+                <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm">
+                  <span className="font-medium">Meal benefits:</span>{' '}
+                  +{foodBoost(selected.price).stamina} stamina · +{foodBoost(selected.price).sustenance} sustenance
+                </div>
+              )}
               {selected.sizeType && (
                 <div className="mt-3">
                   <p className="text-xs mb-2">Size</p>

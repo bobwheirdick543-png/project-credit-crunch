@@ -38,12 +38,14 @@ export const categories=[
  {id:'cinemas',name:'Cinema & Entertainment',sub:'Big screens. Bigger experiences.',image:cinemaImg,icon:'Clapperboard',count:6},
 ];
 export const paymentMethods=['Soul Vault Direct Debit','Soul Card','Cash at Counter','Bank Transfer'];
+export const restaurantPaymentMethods=['Soul Vault Direct Debit','OPai','Kudo','Palm Bank','Gold Trust Bank','Zenith Trust Bank','Access Trust','First Trust Bank'];
 const foodProducts:Product[]=[
- {id:'suya',name:'Premium Suya Platter',price:8500,type:'food',image:suyaImg,description:'Charcoal-grilled beef, yaji spice, onions and tomatoes'},
- {id:'egusi',name:'Egusi & Pounded Yam',price:12000,type:'food',image:egusiImg,description:'Rich melon-seed soup with assorted proteins'},
- {id:'pepper',name:'Pepper Soup Special',price:9500,type:'food',image:pepperImg,description:'Catfish pepper soup with native spices'},
- {id:'puff',name:'Puff-Puff & Zobo Combo',price:3500,type:'food',image:puffImg,description:'Golden doughnuts with chilled hibiscus drink'},
- {id:'jollof',name:'Party Jollof Feast',price:15000,type:'food',image:foodImg,description:'Smoky party jollof, chicken and plantain'},
+ {id:'jollof',name:'Smoky Jollof & Grilled Chicken',price:12000,type:'food',image:foodImg,description:'Party-style rice, flame-grilled chicken and sweet plantain'},
+ {id:'suya',name:'Signature Suya Platter',price:28000,type:'food',image:suyaImg,description:'Chargrilled beef, yaji spice and crisp vegetables'},
+ {id:'egusi',name:'Egusi & Pounded Yam',price:18000,type:'food',image:egusiImg,description:'Rich melon seed soup, tender beef and fresh pounded yam'},
+ {id:'pepper',name:'Catfish Pepper Soup',price:15000,type:'food',image:pepperImg,description:'Aromatic broth, fresh catfish and native spices'},
+ {id:'puff',name:'Puff-Puff & Zobo',price:3500,type:'food',image:puffImg,description:'Golden bites and chilled hibiscus drink'},
+ {id:'feast',name:'Chef’s Tasting Feast',price:65000,type:'food',image:foodImg,description:'Six courses celebrating contemporary Nigerian dining'},
 ];
 const vehicles:Product[]=[
  {id:'supercar-1',name:'Ferrino F8 Tributo',price:185000000,type:'car',image:supercarImg,brand:'Ferrino',mark:'Ferrino',description:'Mid-engine V8 supercar. Pure theatre.',engine:'3.9L Twin-Turbo V8',hp:710,mileage:3200,transmission:'7-Speed DCT'},
@@ -83,7 +85,7 @@ const menus:Record<string,Product[]>={
  cinemas:general.filter(p=>p.id.startsWith('cinema')),
 };
 const names:Record<string,string[]>={
- restaurants:['The Capital Table','Lagoon House','Ember & Oak','Street Kitchen'],
+ restaurants:['Nkaya',"Wakka's","Mama C's",'Bukka House','Bilboa'],
  'car-dealerships':['Prestige Motors','Auto Luxe','City Wheels','Drive Hub'],
  boutiques:['Thread & Co','Drip House','Native Atelier','Radiant'],
  jewelry:['Luxe Time','Shine Vault','Crown Jewels','Gold Standard'],
@@ -106,6 +108,18 @@ const areas:Record<string,string[]>={
  Calabar:['Marian','State Housing','Calabar South'],
  'BS Island':['North Shore','Marina District','Palm Grove'],
 };
+const restaurantAreas:Record<string,string[]>={
+ Abuja:['Maitama','Wuse II','Gwarinpa','Central Business District'],
+ Lagos:['Victoria Island','Lekki Phase 1','Ikoyi','Ikeja GRA'],
+ 'Port Harcourt':['GRA Phase 2','Old GRA'],
+ Enugu:['Independence Layout','New Haven'],
+ Delta:['Asaba GRA','Warri'],
+ Ibadan:['Bodija','Jericho'],
+ Kano:['Nassarawa','Bompai'],
+ Benin:['GRA','Airport Road'],
+ Calabar:['State Housing','Marian'],
+ 'BS Island':['The Marina','Crown Avenue']
+};
 const regionalFood:Record<string,[string,string]>= {
  Abuja:['Capital Suya & Masa','Grilled beef, fluffy masa and yaji'], Lagos:['Lagoon Seafood Rice','Smoky rice, prawns and plantain'],
  'Port Harcourt':['Garden City Bole & Fish','Roasted plantain, grilled fish and pepper sauce'],Enugu:['Coal City Abacha','Cassava salad, garden eggs and ugba'],
@@ -119,9 +133,10 @@ export function cityCatalog(city:string):Business[]{
  const regional=regionalFood[city];
  return categories.flatMap(cat=>(names[cat.id]??[]).map((base,i)=>{
  const venueFood=foodProducts.map(p=>regional&&p.id==='egusi'?{...p,name:regional[0],description:regional[1]}:p);
- const localName=cat.id==='restaurants'&&i===3&&city!=='Abuja'&&city!=='Lagos'?`${locations[0]??city} Kitchen`:base;
+ const venueAreas=cat.id==='restaurants'?(restaurantAreas[city]??locations):locations;
+ const localName=cat.id==='restaurants'&&i===3&&city!=='Abuja'&&city!=='Lagos'?`${venueAreas[0]??city} Kitchen`:base;
  const venueName=cat.id==='car-dealerships'?`${city} ${base}`:localName==='Radiant'&&city==='Lagos'?'Radiant Ikeja':`${localName} ${city}`;
- return {id:`${cat.id}-${i+1}`,name:venueName,category:cat.id,city,area:locations[i%locations.length]??city,
+  return {id:`${cat.id}-${i+1}`,name:venueName,category:cat.id,city,area:venueAreas[i%venueAreas.length]??city,
  tier:(cat.id==='restaurants'?(i===2||i===3?'street':i===1?'casual':'luxury'):i===2||i===3?'street':i===1?'casual':'luxury') as Business['tier'],rating:4.9-i*.1,
  products:cat.id==='restaurants'?venueFood:cat.id==='car-dealerships'&&i===2?vehicles.slice(-4):menus[cat.id]??[],
  tag:i===0?'DISTRICT SELECT':i===1?'LOCAL FAVORITE':'STREET ESSENTIAL',image:cat.image};
