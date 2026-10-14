@@ -37,13 +37,14 @@ export const categories=[
  {id:'gyms',name:'Gyms & Fitness',sub:'Build strength. Find your rhythm.',image:gymsImg,icon:'Dumbbell',count:7},
  {id:'cinemas',name:'Cinema & Entertainment',sub:'Big screens. Bigger experiences.',image:cinemaImg,icon:'Clapperboard',count:6},
 ];
-export const paymentMethods=['Soul Vault Direct Debit','Soul Card','Cash at Counter','Bank Transfer'];
+export const paymentMethods=['Soul Vault Direct Debit','OPai','Kudo','Palm Bank','Gold Trust Bank','Zenith Trust Bank','Access Trust','First Trust Bank'];
 const foodProducts:Product[]=[
- {id:'suya',name:'Premium Suya Platter',price:8500,type:'food',image:suyaImg,description:'Charcoal-grilled beef, yaji spice, onions and tomatoes'},
- {id:'egusi',name:'Egusi & Pounded Yam',price:12000,type:'food',image:egusiImg,description:'Rich melon-seed soup with assorted proteins'},
- {id:'pepper',name:'Pepper Soup Special',price:9500,type:'food',image:pepperImg,description:'Catfish pepper soup with native spices'},
- {id:'puff',name:'Puff-Puff & Zobo Combo',price:3500,type:'food',image:puffImg,description:'Golden doughnuts with chilled hibiscus drink'},
- {id:'jollof',name:'Party Jollof Feast',price:15000,type:'food',image:foodImg,description:'Smoky party jollof, chicken and plantain'},
+ {id:'jollof',name:'Smoky Jollof & Grilled Chicken',price:12000,type:'food',image:foodImg,description:'Party-style rice, flame-grilled chicken and sweet plantain'},
+ {id:'suya',name:'Signature Suya Platter',price:28000,type:'food',image:suyaImg,description:'Chargrilled beef, yaji spice and crisp vegetables'},
+ {id:'egusi',name:'Egusi & Pounded Yam',price:18000,type:'food',image:egusiImg,description:'Rich melon seed soup, tender beef and fresh pounded yam'},
+ {id:'pepper',name:'Catfish Pepper Soup',price:15000,type:'food',image:pepperImg,description:'Aromatic broth, fresh catfish and native spices'},
+ {id:'puff',name:'Puff-Puff & Zobo',price:3500,type:'food',image:puffImg,description:'Golden bites and chilled hibiscus drink'},
+ {id:'feast',name:'Chef’s Tasting Feast',price:65000,type:'food',image:foodImg,description:'Six courses celebrating contemporary Nigerian dining'},
 ];
 const vehicles:Product[]=[
  {id:'supercar-1',name:'Ferrino F8 Tributo',price:185000000,type:'car',image:supercarImg,brand:'Ferrino',mark:'Ferrino',description:'Mid-engine V8 supercar. Pure theatre.',engine:'3.9L Twin-Turbo V8',hp:710,mileage:3200,transmission:'7-Speed DCT'},
@@ -83,7 +84,7 @@ const menus:Record<string,Product[]>={
  cinemas:general.filter(p=>p.id.startsWith('cinema')),
 };
 const names:Record<string,string[]>={
- restaurants:['The Capital Table','Lagoon House','Ember & Oak','Street Kitchen'],
+ restaurants:['Nkaya',"Wakka's","Mama C's",'Bukka House','Bilboa'],
  'car-dealerships':['Prestige Motors','Auto Luxe','City Wheels','Drive Hub'],
  boutiques:['Thread & Co','Drip House','Native Atelier','Radiant'],
  jewelry:['Luxe Time','Shine Vault','Crown Jewels','Gold Standard'],
